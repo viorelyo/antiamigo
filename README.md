@@ -20,5 +20,6 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 
 
 ## Resources
+- https://gamedevacademy.org/create-a-basic-multiplayer-game-in-phaser-3-with-socket-io-part-1/
 - https://github.com/nishmeht7/ArrowStorm
 - https://github.com/jvelez523/IronFightr
