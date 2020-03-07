@@ -1,11 +1,14 @@
 var express = require("express");
 var app = express();
 var server = require("http").Server(app);
+const path = require("path");
 
-app.use(express.static(__dirname + "/client"));
+const client = "client";
+
+app.use(express.static(__dirname + "/" + client));
 
 app.get("/", function(req, res) {
-  res.sendFile(__dirname + "/index.html");
+  res.sendFile(path.resolve(__dirname, "../", client, "index.html"));
 });
 
 server.listen(8081, function() {
