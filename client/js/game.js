@@ -1,12 +1,11 @@
 var config = {
   type: Phaser.AUTO,
-  parent: "phaser-example",
   width: 800,
   height: 600,
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: {y: 500},
+      gravity: {y: 700},
       debug: false
     }
   },
@@ -18,6 +17,7 @@ var config = {
 };
 
 var game = new Phaser.Game(config);
+var platforms;
 
 function preload() {
   this.load.image('sky', '../assets/sky.png');
@@ -31,7 +31,43 @@ function preload() {
 }
 
 function create() {
+  var self = this;
+
   this.socket = io();
+
+  this.otherPlayers = this.physics.add.group();
+
+  this.socket.on('currentPlayers', function (players) {
+    Object.keys(players).forEach(function (id) {
+      if (players[id].playerID === self.socket.id) {
+        addPlayer(self, players[id]);
+      } else {
+        addOtherPlayers(self, players[id]);
+      }
+    });
+  });
+
+  this.socket.on('newPlayer', function (playerInfo) {
+    addOtherPlayers(self, playerInfo);
+  });
+
+  this.socket.on('playerMoved', playerInfo => {
+    self.otherPlayers.getChildren().forEach(otherPlayer => {
+      if (playerInfo.playerID === otherPlayer.playerID) {
+        otherPlayer.setPosition(playerInfo.x, playerInfo.y);
+        otherPlayer.anims.play(playerInfo.direction, true);
+      }
+    });
+  });
+
+  this.socket.on('disconnect', function (playerID) {
+    self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+      if (playerID === otherPlayer.playerID) {
+        otherPlayer.destroy();
+      }
+    });
+  });
+
 
   this.add.image(400, 300, 'sky');
 
@@ -41,12 +77,7 @@ function create() {
   platforms.create(50, 250, 'ground');
   platforms.create(750, 220, 'ground');
 
-  player = this.physics.add.sprite(100, 450, 'dude');
-  player.setBounce(0);
-  //player.body.setGravityY(500);
-  player.setCollideWorldBounds(true);
-
-  this.physics.add.collider(player, platforms);
+  cursors = this.input.keyboard.createCursorKeys();
 
   this.anims.create({
     key: 'left',
@@ -67,23 +98,60 @@ function create() {
     frameRate: 10,
     repeat: -1
   });
-
-  cursors = this.input.keyboard.createCursorKeys();
 }
 
 function update() {
-  if (cursors.left.isDown) {
-    player.setVelocityX(-160);
-    player.anims.play('left', true);
-  } else if (cursors.right.isDown) {
-    player.setVelocityX(160);
-    player.anims.play('right', true);
-  } else {
-    player.setVelocityX(0);
-    player.anims.play('turn');
-  }
+  let direction = 'turn';
+  if (this.player) {
+    if (cursors.left.isDown) {
+      this.player.setVelocityX(-200);
+      this.player.anims.play('left', true);
+      direction = "left";
+    } else if (cursors.right.isDown) {
+      this.player.setVelocityX(200);
+      this.player.anims.play('right', true);
+      direction = "right";
+    } else {
+      this.player.setVelocityX(0);
+      this.player.anims.play('turn');
+      direction = "turn";
+    }
 
-  if (cursors.up.isDown && player.body.touching.down) {
-    player.setVelocityY(-330);
+    if (cursors.up.isDown && this.player.body.touching.down) {
+      this.player.setVelocityY(-700);
+    }
+
+    var x = this.player.x;
+    var y = this.player.y;
+    if (this.player.oldPosition && (x !== this.player.oldPosition.x || y != this.player.oldPosition.y)) {
+      this.socket.emit("playerMovement", {
+        x: this.player.x,
+        y: this.player.y,
+        direction: direction
+      });
+    }
+
+    this.player.oldPosition = {
+      x: this.player.x,
+      y: this.player.y
+    };
   }
+}
+
+function addPlayer(self, playerInfo) {
+  self.player = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'dude');
+  self.player.setBounce(0);
+  self.player.body.setGravityY(500);
+  self.player.setCollideWorldBounds(true);
+  self.physics.add.collider(self.player, platforms);
+}
+
+function addOtherPlayers(self, playerInfo) {
+  const otherPlayer = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'dude');
+  otherPlayer.playerID = playerInfo.playerID;
+  otherPlayer.setBounce(0);
+  otherPlayer.body.setGravityY(500);
+  otherPlayer.setCollideWorldBounds(true);
+  self.physics.add.collider(otherPlayer, platforms);
+  self.otherPlayers.add(otherPlayer);
 }

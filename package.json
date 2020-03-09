@@ -4,6 +4,7 @@
   "description": "Multiplayer browser game based on idea of Towerfall Ascension, implemented using Phaser, WebSockets",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,6 +20,10 @@
   "homepage": "https://github.com/viorelyo/antiamigo#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.3.0",
+    "socket.io-client": "latest"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
   }
 }

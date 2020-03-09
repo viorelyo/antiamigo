@@ -20,6 +20,13 @@ io.on("connection", socket => {
   socket.emit("currentPlayers", players);
   socket.broadcast.emit("newPlayer", players[socket.id]);
 
+  socket.on("playerMovement", movementData => {
+    players[socket.id].x = movementData.x;
+    players[socket.id].y = movementData.y;
+    players[socket.id].direction = movementData.direction;
+    socket.broadcast.emit("playerMoved", players[socket.id]);
+  })
+
   socket.on("disconnect", () => {
     console.log("Player disconnected: " + socket.id);
     playerLeft(socket);
@@ -33,8 +40,9 @@ server.listen(8081, () => {
 
 function playerJoined(socket) {
   players[socket.id] = {
-    x: 100,
-    y: 100,
+    x: 250,
+    y: 50,
+    direction: "turn",
     playerID: socket.id
   };
   console.log(players);
