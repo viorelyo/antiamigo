@@ -42,7 +42,7 @@ function playerJoined(socket) {
   players[socket.id] = {
     x: 250,
     y: 50,
-    direction: "turn",
+    direction: "idle-right",
     playerID: socket.id
   };
   console.log(players);

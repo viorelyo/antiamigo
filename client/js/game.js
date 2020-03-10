@@ -22,11 +22,22 @@ var platforms;
 function preload() {
   this.load.image('sky', '../assets/sky.png');
   this.load.image('ground', '../assets/platform.png');
-  this.load.image('star', '../assets/star.png');
-  this.load.image('bomb', '../assets/bomb.png');
-  this.load.spritesheet('dude',
-    '../assets/dude.png',
-    {frameWidth: 32, frameHeight: 48}
+
+  this.load.spritesheet('dude-idle-left',
+    '../assets/dude-idle-left.png',
+    {frameWidth: 32, frameHeight: 32}
+  );
+  this.load.spritesheet('dude-idle-right',
+    '../assets/dude-idle-right.png',
+    {frameWidth: 32, frameHeight: 32}
+  );
+  this.load.spritesheet('dude-right',
+    '../assets/dude-right.png',
+    {frameWidth: 32, frameHeight: 32}
+  );
+  this.load.spritesheet('dude-left',
+    '../assets/dude-left.png',
+    {frameWidth: 32, frameHeight: 32}
   );
 }
 
@@ -81,40 +92,53 @@ function create() {
 
   this.anims.create({
     key: 'left',
-    frames: this.anims.generateFrameNumbers('dude', {start: 0, end: 3}),
-    frameRate: 10,
+    frames: this.anims.generateFrameNumbers('dude-left', {start: 0, end: 11}),
+    frameRate: 30,
     repeat: -1
   });
 
   this.anims.create({
-    key: 'turn',
-    frames: [{key: 'dude', frame: 4}],
-    frameRate: 20
+    key: 'idle-left',
+    frames: this.anims.generateFrameNumbers('dude-idle-left', {start: 0, end: 10}),
+    frameRate: 30,
+    repeat: -1
+  });
+
+  this.anims.create({
+    key: 'idle-right',
+    frames: this.anims.generateFrameNumbers('dude-idle-right', {start: 0, end: 10}),
+    frameRate: 30,
+    repeat: -1
   });
 
   this.anims.create({
     key: 'right',
-    frames: this.anims.generateFrameNumbers('dude', {start: 5, end: 8}),
-    frameRate: 10,
+    frames: this.anims.generateFrameNumbers('dude-right', {start: 0, end: 11}),
+    frameRate: 30,
     repeat: -1
   });
 }
 
 function update() {
-  let direction = 'turn';
   if (this.player) {
     if (cursors.left.isDown) {
       this.player.setVelocityX(-200);
       this.player.anims.play('left', true);
-      direction = "left";
+      this.player.direction = "left";
     } else if (cursors.right.isDown) {
       this.player.setVelocityX(200);
       this.player.anims.play('right', true);
-      direction = "right";
+      this.player.direction = "right";
     } else {
       this.player.setVelocityX(0);
-      this.player.anims.play('turn');
-      direction = "turn";
+      if (this.player.direction === "left" || this.player.direction === "idle-left") {
+        this.player.anims.play('idle-left', true);
+        this.player.direction = "idle-left";
+      }
+      else if (this.player.direction === "right" || this.player.direction === "idle-right") {
+        this.player.anims.play('idle-right', true);
+        this.player.direction = "idle-right";
+      }
     }
 
     if (cursors.up.isDown && this.player.body.touching.down) {
@@ -127,7 +151,7 @@ function update() {
       this.socket.emit("playerMovement", {
         x: this.player.x,
         y: this.player.y,
-        direction: direction
+        direction: this.player.direction
       });
     }
 
@@ -139,15 +163,17 @@ function update() {
 }
 
 function addPlayer(self, playerInfo) {
-  self.player = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'dude');
+  self.player = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'dude-idle-right');
   self.player.setBounce(0);
   self.player.body.setGravityY(500);
   self.player.setCollideWorldBounds(true);
   self.physics.add.collider(self.player, platforms);
+  self.player.direction = playerInfo.direction;
+  console.log("AddPlayer:", self.player.direction);
 }
 
 function addOtherPlayers(self, playerInfo) {
-  const otherPlayer = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'dude');
+  const otherPlayer = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'dude-idle-right');
   otherPlayer.playerID = playerInfo.playerID;
   otherPlayer.setBounce(0);
   otherPlayer.body.setGravityY(500);
