@@ -24,22 +24,10 @@ function preload() {
   this.load.image('sky', '../assets/sky.png');
   this.load.image('ground', '../assets/platform.png');
 
-  // this.load.spritesheet('dude-idle-left',
-  //   '../assets/dude-idle-left.png',
-  //   {frameWidth: 32, frameHeight: 32}
-  // );
-  // this.load.spritesheet('dude-idle-right',
-  //   '../assets/dude-idle-right.png',
-  //   {frameWidth: 32, frameHeight: 32}
-  // );
-  // this.load.spritesheet('dude-right',
-  //   '../assets/dude-right.png',
-  //   {frameWidth: 32, frameHeight: 32}
-  // );
-  // this.load.spritesheet('dude-left',
-  //   '../assets/dude-left.png',
-  //   {frameWidth: 32, frameHeight: 32}
-  // );
+  this.load.spritesheet('disappearing',
+    '../assets/disappearing.png',
+    {frameWidth: 96, frameHeight: 96}
+  );
 
   var self = this;
   sprites.forEach(sprite => {
@@ -94,14 +82,15 @@ function create() {
   });
 
   this.socket.on('disconnect', function (playerID) {
-    console.log(self.otherPlayers);
     self.otherPlayers.getChildren().forEach(function (otherPlayer) {
       if (playerID === otherPlayer.playerID) {
-        otherPlayer.destroy();
+        otherPlayer.anims.play('disappearing', false);
+        otherPlayer.once("animationcomplete", () => {
+          otherPlayer.destroy();
+        });
       }
     });
   });
-
 
   this.add.image(400, 300, 'sky');
 
@@ -112,6 +101,13 @@ function create() {
   platforms.create(750, 220, 'ground');
 
   cursors = this.input.keyboard.createCursorKeys();
+
+  this.anims.create({
+    key: 'disappearing',
+    frames: this.anims.generateFrameNumbers('disappearing', {start: 0, end: 6}),
+    frameRate: 20,
+    repeat: 1
+  });
 
   sprites.forEach(sprite => {
     this.anims.create({
