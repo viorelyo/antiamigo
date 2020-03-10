@@ -5,6 +5,7 @@ const server = require("http").Server(app);
 const io = require("socket.io").listen(server);
 
 var players = {};
+const sprites = ["dude", "frog", "pink", "guy"];
 
 const client = "client";
 
@@ -30,7 +31,7 @@ io.on("connection", socket => {
   socket.on("disconnect", () => {
     console.log("Player disconnected: " + socket.id);
     playerLeft(socket);
-    io.emit("disconnect, socket.id");
+    io.emit("disconnect", socket.id);
   });
 });
 
@@ -39,10 +40,13 @@ server.listen(8081, () => {
 });
 
 function playerJoined(socket) {
+  const randomInt = Math.floor(Math.random() * 4);
+
   players[socket.id] = {
     x: 250,
     y: 50,
     direction: "idle-right",
+    spriteKey: sprites[randomInt],
     playerID: socket.id
   };
   console.log(players);

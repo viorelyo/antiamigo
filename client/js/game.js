@@ -18,27 +18,49 @@ var config = {
 
 var game = new Phaser.Game(config);
 var platforms;
+const sprites = ["dude", "frog", "pink", "guy"];
 
 function preload() {
   this.load.image('sky', '../assets/sky.png');
   this.load.image('ground', '../assets/platform.png');
 
-  this.load.spritesheet('dude-idle-left',
-    '../assets/dude-idle-left.png',
-    {frameWidth: 32, frameHeight: 32}
-  );
-  this.load.spritesheet('dude-idle-right',
-    '../assets/dude-idle-right.png',
-    {frameWidth: 32, frameHeight: 32}
-  );
-  this.load.spritesheet('dude-right',
-    '../assets/dude-right.png',
-    {frameWidth: 32, frameHeight: 32}
-  );
-  this.load.spritesheet('dude-left',
-    '../assets/dude-left.png',
-    {frameWidth: 32, frameHeight: 32}
-  );
+  // this.load.spritesheet('dude-idle-left',
+  //   '../assets/dude-idle-left.png',
+  //   {frameWidth: 32, frameHeight: 32}
+  // );
+  // this.load.spritesheet('dude-idle-right',
+  //   '../assets/dude-idle-right.png',
+  //   {frameWidth: 32, frameHeight: 32}
+  // );
+  // this.load.spritesheet('dude-right',
+  //   '../assets/dude-right.png',
+  //   {frameWidth: 32, frameHeight: 32}
+  // );
+  // this.load.spritesheet('dude-left',
+  //   '../assets/dude-left.png',
+  //   {frameWidth: 32, frameHeight: 32}
+  // );
+
+  var self = this;
+  sprites.forEach(sprite => {
+    self.load.spritesheet(sprite + '-idle-left',
+      '../assets/' + sprite + '-idle-left.png',
+      {frameWidth: 32, frameHeight: 32}
+    );
+    self.load.spritesheet(sprite + '-idle-right',
+      '../assets/' + sprite + '-idle-right.png',
+      {frameWidth: 32, frameHeight: 32}
+    );
+    self.load.spritesheet(sprite + '-right',
+      '../assets/' + sprite + '-right.png',
+      {frameWidth: 32, frameHeight: 32}
+    );
+    self.load.spritesheet(sprite + '-left',
+      '../assets/' + sprite + '-left.png',
+      {frameWidth: 32, frameHeight: 32}
+    );
+  });
+
 }
 
 function create() {
@@ -66,12 +88,13 @@ function create() {
     self.otherPlayers.getChildren().forEach(otherPlayer => {
       if (playerInfo.playerID === otherPlayer.playerID) {
         otherPlayer.setPosition(playerInfo.x, playerInfo.y);
-        otherPlayer.anims.play(playerInfo.direction, true);
+        otherPlayer.anims.play(playerInfo.spriteKey + '-' + playerInfo.direction, true);
       }
     });
   });
 
   this.socket.on('disconnect', function (playerID) {
+    console.log(self.otherPlayers);
     self.otherPlayers.getChildren().forEach(function (otherPlayer) {
       if (playerID === otherPlayer.playerID) {
         otherPlayer.destroy();
@@ -90,53 +113,55 @@ function create() {
 
   cursors = this.input.keyboard.createCursorKeys();
 
-  this.anims.create({
-    key: 'left',
-    frames: this.anims.generateFrameNumbers('dude-left', {start: 0, end: 11}),
-    frameRate: 30,
-    repeat: -1
-  });
+  sprites.forEach(sprite => {
+    this.anims.create({
+      key: sprite + '-left',
+      frames: this.anims.generateFrameNumbers(sprite + '-left', {start: 0, end: 11}),
+      frameRate: 30,
+      repeat: -1
+    });
 
-  this.anims.create({
-    key: 'idle-left',
-    frames: this.anims.generateFrameNumbers('dude-idle-left', {start: 0, end: 10}),
-    frameRate: 30,
-    repeat: -1
-  });
+    this.anims.create({
+      key: sprite + '-idle-left',
+      frames: this.anims.generateFrameNumbers(sprite + '-idle-left', {start: 0, end: 10}),
+      frameRate: 30,
+      repeat: -1
+    });
 
-  this.anims.create({
-    key: 'idle-right',
-    frames: this.anims.generateFrameNumbers('dude-idle-right', {start: 0, end: 10}),
-    frameRate: 30,
-    repeat: -1
-  });
+    this.anims.create({
+      key: sprite + '-idle-right',
+      frames: this.anims.generateFrameNumbers(sprite + '-idle-right', {start: 0, end: 10}),
+      frameRate: 30,
+      repeat: -1
+    });
 
-  this.anims.create({
-    key: 'right',
-    frames: this.anims.generateFrameNumbers('dude-right', {start: 0, end: 11}),
-    frameRate: 30,
-    repeat: -1
-  });
+    this.anims.create({
+      key: sprite + '-right',
+      frames: this.anims.generateFrameNumbers(sprite + '-right', {start: 0, end: 11}),
+      frameRate: 30,
+      repeat: -1
+    });
+  })
 }
 
 function update() {
   if (this.player) {
     if (cursors.left.isDown) {
       this.player.setVelocityX(-200);
-      this.player.anims.play('left', true);
+      this.player.anims.play(this.player.spriteKey + '-left', true);
       this.player.direction = "left";
     } else if (cursors.right.isDown) {
       this.player.setVelocityX(200);
-      this.player.anims.play('right', true);
+      this.player.anims.play(this.player.spriteKey + '-right', true);
       this.player.direction = "right";
     } else {
       this.player.setVelocityX(0);
       if (this.player.direction === "left" || this.player.direction === "idle-left") {
-        this.player.anims.play('idle-left', true);
+        this.player.anims.play(this.player.spriteKey + '-idle-left', true);
         this.player.direction = "idle-left";
       }
       else if (this.player.direction === "right" || this.player.direction === "idle-right") {
-        this.player.anims.play('idle-right', true);
+        this.player.anims.play(this.player.spriteKey + '-idle-right', true);
         this.player.direction = "idle-right";
       }
     }
@@ -163,17 +188,18 @@ function update() {
 }
 
 function addPlayer(self, playerInfo) {
-  self.player = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'dude-idle-right');
+  self.player = self.physics.add.sprite(playerInfo.x, playerInfo.y, playerInfo.spriteKey + '-' + playerInfo.direction);
   self.player.setBounce(0);
   self.player.body.setGravityY(500);
   self.player.setCollideWorldBounds(true);
   self.physics.add.collider(self.player, platforms);
+
   self.player.direction = playerInfo.direction;
-  console.log("AddPlayer:", self.player.direction);
+  self.player.spriteKey = playerInfo.spriteKey;
 }
 
 function addOtherPlayers(self, playerInfo) {
-  const otherPlayer = self.physics.add.sprite(playerInfo.x, playerInfo.y, 'dude-idle-right');
+  const otherPlayer = self.physics.add.sprite(playerInfo.x, playerInfo.y, playerInfo.spriteKey + '-' + playerInfo.direction);
   otherPlayer.playerID = playerInfo.playerID;
   otherPlayer.setBounce(0);
   otherPlayer.body.setGravityY(500);
