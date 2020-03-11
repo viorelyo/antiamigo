@@ -26,13 +26,13 @@ io.on("connection", socket => {
     players[socket.id].y = movementData.y;
     players[socket.id].direction = movementData.direction;
     socket.broadcast.emit("playerMoved", players[socket.id]);
-  })
+  });
 
   socket.on("playerKilled", playerID => {
     console.log("Player killed: " + playerID);
     playerLeft(playerID);
-    socket.broadcast.emit("playerDead", playerID);
-  })
+    socket.broadcast.emit("opponentDied", playerID);
+  });
 
   socket.on("disconnect", () => {
     console.log("Player disconnected: " + socket.id);
