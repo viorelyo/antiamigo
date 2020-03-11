@@ -3,9 +3,9 @@ var config = {
   width: 800,
   height: 600,
   physics: {
-    default: 'arcade',
+    default: "arcade",
     arcade: {
-      gravity: {y: 700},
+      gravity: { y: 700 },
       debug: false
     }
   },
@@ -23,34 +23,37 @@ var platforms;
 const sprites = ["dude", "frog", "pink", "guy"];
 
 function preload() {
-  this.load.image('sky', '../assets/sky.png');
-  this.load.image('ground', '../assets/platform.png');
+  this.load.image("sky", "../assets/sky.png");
+  this.load.image("ground", "../assets/platform.png");
 
-  this.load.spritesheet('disappearing',
-    '../assets/disappearing.png',
-    {frameWidth: 96, frameHeight: 96}
-  );
+  this.load.spritesheet("disappearing", "../assets/disappearing.png", {
+    frameWidth: 96,
+    frameHeight: 96
+  });
 
   var self = this;
   sprites.forEach(sprite => {
-    self.load.spritesheet(sprite + '-idle-left',
-      '../assets/' + sprite + '-idle-left.png',
-      {frameWidth: 32, frameHeight: 32}
+    self.load.spritesheet(
+      sprite + "-idle-left",
+      "../assets/" + sprite + "-idle-left.png",
+      { frameWidth: 32, frameHeight: 32 }
     );
-    self.load.spritesheet(sprite + '-idle-right',
-      '../assets/' + sprite + '-idle-right.png',
-      {frameWidth: 32, frameHeight: 32}
+    self.load.spritesheet(
+      sprite + "-idle-right",
+      "../assets/" + sprite + "-idle-right.png",
+      { frameWidth: 32, frameHeight: 32 }
     );
-    self.load.spritesheet(sprite + '-right',
-      '../assets/' + sprite + '-right.png',
-      {frameWidth: 32, frameHeight: 32}
+    self.load.spritesheet(
+      sprite + "-right",
+      "../assets/" + sprite + "-right.png",
+      { frameWidth: 32, frameHeight: 32 }
     );
-    self.load.spritesheet(sprite + '-left',
-      '../assets/' + sprite + '-left.png',
-      {frameWidth: 32, frameHeight: 32}
+    self.load.spritesheet(
+      sprite + "-left",
+      "../assets/" + sprite + "-left.png",
+      { frameWidth: 32, frameHeight: 32 }
     );
   });
-
 }
 
 function create() {
@@ -60,112 +63,144 @@ function create() {
 
   this.otherPlayers = this.physics.add.group();
 
-  client.socket.on('currentPlayers', function (players) {
-    Object.keys(players).forEach(function (id) {
+  client.socket.on("currentPlayers", function(players) {
+    Object.keys(players).forEach(function(id) {
       if (players[id].playerID === client.socket.id) {
         addPlayer(self, players[id]);
-        self.physics.add.overlap(self.player, self.otherPlayers, playerDead, onHeadJump, self);
+        self.physics.add.overlap(
+          self.player,
+          self.otherPlayers,
+          playerDead,
+          onHeadJump,
+          self
+        );
       } else {
         addOtherPlayers(self, players[id]);
       }
     });
   });
 
-  client.socket.on('newPlayer', function (playerInfo) {
+  client.socket.on("newPlayer", function(playerInfo) {
     addOtherPlayers(self, playerInfo);
   });
 
-  client.socket.on('playerMoved', playerInfo => {
+  client.socket.on("playerMoved", playerInfo => {
     self.otherPlayers.getChildren().forEach(otherPlayer => {
       if (playerInfo.playerID === otherPlayer.playerID) {
         otherPlayer.setPosition(playerInfo.x, playerInfo.y);
-        otherPlayer.anims.play(playerInfo.spriteKey + '-' + playerInfo.direction, true);
+        otherPlayer.anims.play(
+          playerInfo.spriteKey + "-" + playerInfo.direction,
+          true
+        );
       }
     });
   });
 
-  client.socket.on('playerDead', playerID => {
-    self.otherPlayers.getChildren().forEach(function (otherPlayer) {
-      if (playerID === otherPlayer.playerID) {
-        destroyPlayer(otherPlayer);
-      }
-    });
-  })
-
-  client.socket.on('disconnect', function (playerID) {
-    self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+  client.socket.on("opponentDied", playerID => {
+    self.otherPlayers.getChildren().forEach(function(otherPlayer) {
       if (playerID === otherPlayer.playerID) {
         destroyPlayer(otherPlayer);
       }
     });
   });
 
-  this.add.image(400, 300, 'sky');
+  client.socket.on("disconnect", function(playerID) {
+    self.otherPlayers.getChildren().forEach(function(otherPlayer) {
+      if (playerID === otherPlayer.playerID) {
+        destroyPlayer(otherPlayer);
+      }
+    });
+  });
+
+  this.add.image(400, 300, "sky");
 
   platforms = this.physics.add.staticGroup();
-  platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-  platforms.create(600, 400, 'ground');
-  platforms.create(50, 250, 'ground');
-  platforms.create(750, 220, 'ground');
+  platforms
+    .create(400, 568, "ground")
+    .setScale(2)
+    .refreshBody();
+  platforms.create(600, 400, "ground");
+  platforms.create(50, 250, "ground");
+  platforms.create(750, 220, "ground");
 
   cursors = this.input.keyboard.createCursorKeys();
 
   this.anims.create({
-    key: 'disappearing',
-    frames: this.anims.generateFrameNumbers('disappearing', {start: 0, end: 6}),
+    key: "disappearing",
+    frames: this.anims.generateFrameNumbers("disappearing", {
+      start: 0,
+      end: 6
+    }),
     frameRate: 20,
     repeat: 1
   });
 
   sprites.forEach(sprite => {
     this.anims.create({
-      key: sprite + '-left',
-      frames: this.anims.generateFrameNumbers(sprite + '-left', {start: 0, end: 11}),
+      key: sprite + "-left",
+      frames: this.anims.generateFrameNumbers(sprite + "-left", {
+        start: 0,
+        end: 11
+      }),
       frameRate: 30,
       repeat: -1
     });
 
     this.anims.create({
-      key: sprite + '-idle-left',
-      frames: this.anims.generateFrameNumbers(sprite + '-idle-left', {start: 0, end: 10}),
+      key: sprite + "-idle-left",
+      frames: this.anims.generateFrameNumbers(sprite + "-idle-left", {
+        start: 0,
+        end: 10
+      }),
       frameRate: 30,
       repeat: -1
     });
 
     this.anims.create({
-      key: sprite + '-idle-right',
-      frames: this.anims.generateFrameNumbers(sprite + '-idle-right', {start: 0, end: 10}),
+      key: sprite + "-idle-right",
+      frames: this.anims.generateFrameNumbers(sprite + "-idle-right", {
+        start: 0,
+        end: 10
+      }),
       frameRate: 30,
       repeat: -1
     });
 
     this.anims.create({
-      key: sprite + '-right',
-      frames: this.anims.generateFrameNumbers(sprite + '-right', {start: 0, end: 11}),
+      key: sprite + "-right",
+      frames: this.anims.generateFrameNumbers(sprite + "-right", {
+        start: 0,
+        end: 11
+      }),
       frameRate: 30,
       repeat: -1
     });
-  })
+  });
 }
 
 function update() {
-  if (this.player) {
+  if (this.player && this.player.alive) {
     if (cursors.left.isDown) {
       this.player.setVelocityX(-200);
-      this.player.anims.play(this.player.spriteKey + '-left', true);
+      this.player.anims.play(this.player.spriteKey + "-left", true);
       this.player.direction = "left";
     } else if (cursors.right.isDown) {
       this.player.setVelocityX(200);
-      this.player.anims.play(this.player.spriteKey + '-right', true);
+      this.player.anims.play(this.player.spriteKey + "-right", true);
       this.player.direction = "right";
     } else {
       this.player.setVelocityX(0);
-      if (this.player.direction === "left" || this.player.direction === "idle-left") {
-        this.player.anims.play(this.player.spriteKey + '-idle-left', true);
+      if (
+        this.player.direction === "left" ||
+        this.player.direction === "idle-left"
+      ) {
+        this.player.anims.play(this.player.spriteKey + "-idle-left", true);
         this.player.direction = "idle-left";
-      }
-      else if (this.player.direction === "right" || this.player.direction === "idle-right") {
-        this.player.anims.play(this.player.spriteKey + '-idle-right', true);
+      } else if (
+        this.player.direction === "right" ||
+        this.player.direction === "idle-right"
+      ) {
+        this.player.anims.play(this.player.spriteKey + "-idle-right", true);
         this.player.direction = "idle-right";
       }
     }
@@ -176,7 +211,10 @@ function update() {
 
     var x = this.player.x;
     var y = this.player.y;
-    if (this.player.oldPosition && (x !== this.player.oldPosition.x || y != this.player.oldPosition.y)) {
+    if (
+      this.player.oldPosition &&
+      (x !== this.player.oldPosition.x || y != this.player.oldPosition.y)
+    ) {
       client.socket.emit("playerMovement", {
         x: this.player.x,
         y: this.player.y,
@@ -189,25 +227,31 @@ function update() {
       y: this.player.y
     };
   }
-  
-  else {
-    return
-  }
 }
 
 function addPlayer(self, playerInfo) {
-  self.player = self.physics.add.sprite(playerInfo.x, playerInfo.y, playerInfo.spriteKey + '-' + playerInfo.direction);
+  self.player = self.physics.add.sprite(
+    playerInfo.x,
+    playerInfo.y,
+    playerInfo.spriteKey + "-" + playerInfo.direction
+  );
   self.player.setBounce(0);
   self.player.body.setGravityY(500);
   self.player.setCollideWorldBounds(true);
   self.physics.add.collider(self.player, platforms);
 
+  self.player.playerID = playerInfo.playerID;
+  self.player.alive = true;
   self.player.direction = playerInfo.direction;
   self.player.spriteKey = playerInfo.spriteKey;
 }
 
 function addOtherPlayers(self, playerInfo) {
-  const otherPlayer = self.physics.add.sprite(playerInfo.x, playerInfo.y, playerInfo.spriteKey + '-' + playerInfo.direction);
+  const otherPlayer = self.physics.add.sprite(
+    playerInfo.x,
+    playerInfo.y,
+    playerInfo.spriteKey + "-" + playerInfo.direction
+  );
   otherPlayer.playerID = playerInfo.playerID;
   otherPlayer.setBounce(0);
   otherPlayer.body.setGravityY(500);
@@ -218,14 +262,14 @@ function addOtherPlayers(self, playerInfo) {
 }
 
 function playerDead(player, otherPlayer) {
-  console.log("die motherfucker");
   // if (otherPlayer) {
   //   client.socket.emit("playerKilled", otherPlayer.playerID);
   //   //destroyPlayer(otherPlayer);
   // }
-
-  if (player) {
+  console.log("playerDead: " + player);
+  if (player != null && player.alive) {
     client.socket.emit("playerKilled", player.playerID);
+    player.alive = false;
     destroyPlayer(player);
   }
 }
@@ -233,14 +277,14 @@ function playerDead(player, otherPlayer) {
 function onHeadJump(player, otherPlayer) {
   const playerBounds = player.getBounds();
   const otherPlayerBounds = otherPlayer.getBounds();
-  
+
   //return otherPlayerBounds.y > playerBounds.y;
   return otherPlayerBounds.y < playerBounds.y;
 }
 
-function destroyPlayer(otherPlayer) {
-  otherPlayer.anims.play('disappearing', false);
-  otherPlayer.once("animationcomplete", () => {
-    otherPlayer.destroy();
+function destroyPlayer(player) {
+  player.anims.play("disappearing", false);
+  player.once("animationcomplete", () => {
+    player.destroy();
   });
 }

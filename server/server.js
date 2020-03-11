@@ -16,7 +16,6 @@ app.get("*", function(req, res) {
 });
 
 io.on("connection", socket => {
-  console.log("Player connected: " + socket.id);
   playerJoined(socket);
   socket.emit("currentPlayers", players);
   socket.broadcast.emit("newPlayer", players[socket.id]);
@@ -26,16 +25,16 @@ io.on("connection", socket => {
     players[socket.id].y = movementData.y;
     players[socket.id].direction = movementData.direction;
     socket.broadcast.emit("playerMoved", players[socket.id]);
-  })
+  });
 
   socket.on("playerKilled", playerID => {
     console.log("Player killed: " + playerID);
     playerLeft(playerID);
-    socket.broadcast.emit("playerDead", playerID);
-  })
+    socket.broadcast.emit("opponentDied", playerID);
+  });
 
   socket.on("disconnect", () => {
-    console.log("Player disconnected: " + socket.id);
+    //console.log("Player disconnected: " + socket.id);
     playerLeft(socket.id);
     io.emit("disconnect", socket.id);
   });
@@ -55,10 +54,10 @@ function playerJoined(socket) {
     spriteKey: sprites[randomInt],
     playerID: socket.id
   };
-  console.log(players);
+  console.log("Player joined: " + socket.id);
 }
 
 function playerLeft(socketID) {
   delete players[socketID];
-  console.log(players);
+  //console.log(players);
 }
