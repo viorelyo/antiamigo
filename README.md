@@ -2,7 +2,7 @@
 
 Multiplayer browser game based on idea of Towerfall Ascension, implemented using Phaser, WebSockets
 
-## TODO
+## General TODO
 
 - [ ] Design the minimum functionality:
 
@@ -14,12 +14,18 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
   6. 3 States: `Start Game`, `Game`, `End Game`
   7. Low light (simulate towerfall light conditions)
 
-- [ ] Select maximum limit of players for multiplayer
-- [ ] Choose sprites for players
+- [x] Select maximum limit of players for multiplayer **4**
+- [x] Choose sprites for players
 - [ ] Find sprites for arrow
 - [ ] Find game map + Create
 - [ ] Add sounds
 - [ ] Add more Bonuses: Wings (maybe?!?!)... TBA
+
+## TODO in Depth
+
+- [ ] Add bounce when player kills oponent jumping on head
+- [ ] Fix jump on head
+- [ ] Double jump
 
 ## Resources
 
