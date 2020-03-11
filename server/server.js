@@ -28,9 +28,15 @@ io.on("connection", socket => {
     socket.broadcast.emit("playerMoved", players[socket.id]);
   })
 
+  socket.on("playerKilled", playerID => {
+    console.log("Player killed: " + playerID);
+    playerLeft(playerID);
+    socket.broadcast.emit("playerDead", playerID);
+  })
+
   socket.on("disconnect", () => {
     console.log("Player disconnected: " + socket.id);
-    playerLeft(socket);
+    playerLeft(socket.id);
     io.emit("disconnect", socket.id);
   });
 });
@@ -52,7 +58,7 @@ function playerJoined(socket) {
   console.log(players);
 }
 
-function playerLeft(socket) {
-  delete players[socket.id];
+function playerLeft(socketID) {
+  delete players[socketID];
   console.log(players);
 }

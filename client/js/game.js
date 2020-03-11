@@ -16,6 +16,8 @@ var config = {
   }
 };
 
+var client = {};
+
 var game = new Phaser.Game(config);
 var platforms;
 const sprites = ["dude", "frog", "pink", "guy"];
@@ -54,25 +56,26 @@ function preload() {
 function create() {
   var self = this;
 
-  this.socket = io();
+  client.socket = io();
 
   this.otherPlayers = this.physics.add.group();
 
-  this.socket.on('currentPlayers', function (players) {
+  client.socket.on('currentPlayers', function (players) {
     Object.keys(players).forEach(function (id) {
-      if (players[id].playerID === self.socket.id) {
+      if (players[id].playerID === client.socket.id) {
         addPlayer(self, players[id]);
+        self.physics.add.overlap(self.player, self.otherPlayers, playerDead, onHeadJump, self);
       } else {
         addOtherPlayers(self, players[id]);
       }
     });
   });
 
-  this.socket.on('newPlayer', function (playerInfo) {
+  client.socket.on('newPlayer', function (playerInfo) {
     addOtherPlayers(self, playerInfo);
   });
 
-  this.socket.on('playerMoved', playerInfo => {
+  client.socket.on('playerMoved', playerInfo => {
     self.otherPlayers.getChildren().forEach(otherPlayer => {
       if (playerInfo.playerID === otherPlayer.playerID) {
         otherPlayer.setPosition(playerInfo.x, playerInfo.y);
@@ -81,13 +84,18 @@ function create() {
     });
   });
 
-  this.socket.on('disconnect', function (playerID) {
+  client.socket.on('playerDead', playerID => {
     self.otherPlayers.getChildren().forEach(function (otherPlayer) {
       if (playerID === otherPlayer.playerID) {
-        otherPlayer.anims.play('disappearing', false);
-        otherPlayer.once("animationcomplete", () => {
-          otherPlayer.destroy();
-        });
+        destroyPlayer(otherPlayer);
+      }
+    });
+  })
+
+  client.socket.on('disconnect', function (playerID) {
+    self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+      if (playerID === otherPlayer.playerID) {
+        destroyPlayer(otherPlayer);
       }
     });
   });
@@ -169,7 +177,7 @@ function update() {
     var x = this.player.x;
     var y = this.player.y;
     if (this.player.oldPosition && (x !== this.player.oldPosition.x || y != this.player.oldPosition.y)) {
-      this.socket.emit("playerMovement", {
+      client.socket.emit("playerMovement", {
         x: this.player.x,
         y: this.player.y,
         direction: this.player.direction
@@ -180,6 +188,10 @@ function update() {
       x: this.player.x,
       y: this.player.y
     };
+  }
+  
+  else {
+    return
   }
 }
 
@@ -201,5 +213,34 @@ function addOtherPlayers(self, playerInfo) {
   otherPlayer.body.setGravityY(500);
   otherPlayer.setCollideWorldBounds(true);
   self.physics.add.collider(otherPlayer, platforms);
+
   self.otherPlayers.add(otherPlayer);
+}
+
+function playerDead(player, otherPlayer) {
+  console.log("die motherfucker");
+  // if (otherPlayer) {
+  //   client.socket.emit("playerKilled", otherPlayer.playerID);
+  //   //destroyPlayer(otherPlayer);
+  // }
+
+  if (player) {
+    client.socket.emit("playerKilled", player.playerID);
+    destroyPlayer(player);
+  }
+}
+
+function onHeadJump(player, otherPlayer) {
+  const playerBounds = player.getBounds();
+  const otherPlayerBounds = otherPlayer.getBounds();
+  
+  //return otherPlayerBounds.y > playerBounds.y;
+  return otherPlayerBounds.y < playerBounds.y;
+}
+
+function destroyPlayer(otherPlayer) {
+  otherPlayer.anims.play('disappearing', false);
+  otherPlayer.once("animationcomplete", () => {
+    otherPlayer.destroy();
+  });
 }
