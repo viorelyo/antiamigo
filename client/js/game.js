@@ -179,7 +179,7 @@ function create() {
 }
 
 function update() {
-  if (this.player) {
+  if (this.player && this.player.alive) {
     if (cursors.left.isDown) {
       this.player.setVelocityX(-200);
       this.player.anims.play(this.player.spriteKey + "-left", true);
@@ -226,8 +226,6 @@ function update() {
       x: this.player.x,
       y: this.player.y
     };
-  } else {
-    return;
   }
 }
 
@@ -243,6 +241,7 @@ function addPlayer(self, playerInfo) {
   self.physics.add.collider(self.player, platforms);
 
   self.player.playerID = playerInfo.playerID;
+  self.player.alive = true;
   self.player.direction = playerInfo.direction;
   self.player.spriteKey = playerInfo.spriteKey;
 }
@@ -267,10 +266,11 @@ function playerDead(player, otherPlayer) {
   //   client.socket.emit("playerKilled", otherPlayer.playerID);
   //   //destroyPlayer(otherPlayer);
   // }
-  console.log(player);
-  if (player != null) {
+  console.log("playerDead: " + player);
+  if (player != null && player.alive) {
     client.socket.emit("playerKilled", player.playerID);
-    // destroyPlayer(player);
+    player.alive = false;
+    destroyPlayer(player);
   }
 }
 
@@ -282,9 +282,9 @@ function onHeadJump(player, otherPlayer) {
   return otherPlayerBounds.y < playerBounds.y;
 }
 
-function destroyPlayer(otherPlayer) {
-  otherPlayer.anims.play("disappearing", false);
-  otherPlayer.once("animationcomplete", () => {
-    otherPlayer.destroy();
+function destroyPlayer(player) {
+  player.anims.play("disappearing", false);
+  player.once("animationcomplete", () => {
+    player.destroy();
   });
 }
