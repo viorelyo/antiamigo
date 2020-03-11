@@ -71,7 +71,7 @@ function create() {
           self.player,
           self.otherPlayers,
           playerDead,
-          onHeadJump,
+          null,
           self
         );
       } else {
@@ -96,12 +96,22 @@ function create() {
     });
   });
 
-  client.socket.on("opponentDied", playerID => {
+  client.socket.on("opponentDied", data => {
+    console.log(data);
+    console.log(self.otherPlayers.getChildren());
     self.otherPlayers.getChildren().forEach(function(otherPlayer) {
-      if (playerID === otherPlayer.playerID) {
+      if (data.victimID === otherPlayer.playerID) {
         destroyPlayer(otherPlayer);
       }
+      if (data.killerID === otherPlayer.playerID) {
+        console.log("found the killer");
+        otherPlayer.setVelocityY(-400);
+      }
     });
+    if (self.player.playerID === data.killerID) {
+      console.log("found the killer");
+      self.player.setVelocityY(-400);
+    }
   });
 
   client.socket.on("disconnect", function(playerID) {
@@ -262,25 +272,28 @@ function addOtherPlayers(self, playerInfo) {
 }
 
 function playerDead(player, otherPlayer) {
-  // if (otherPlayer) {
-  //   client.socket.emit("playerKilled", otherPlayer.playerID);
-  //   //destroyPlayer(otherPlayer);
-  // }
-  console.log("playerDead: " + player);
   if (player != null && player.alive) {
-    client.socket.emit("playerKilled", player.playerID);
-    player.alive = false;
-    destroyPlayer(player);
+    if (player.body.touching.up) {
+      otherPlayer.setVelocityY(-400);
+      client.socket.emit("playerKilled", {
+        victimID: player.playerID,
+        killerID: otherPlayer.playerID
+      });
+      player.alive = false;
+      destroyPlayer(player);
+    }
   }
 }
 
-function onHeadJump(player, otherPlayer) {
-  const playerBounds = player.getBounds();
-  const otherPlayerBounds = otherPlayer.getBounds();
-
-  //return otherPlayerBounds.y > playerBounds.y;
-  return otherPlayerBounds.y < playerBounds.y;
-}
+// function onHeadJump(player, otherPlayer) {
+//   // console.log(player.body.touching.up);
+//   //return (player.body.touching.up && player.body.onFloor());
+//   //return (otherPlayerBounds.y < playerBounds.y);
+//   if (otherPlayer.body.touching.down) {
+//     return true;
+//   }
+//   return false;
+// }
 
 function destroyPlayer(player) {
   player.anims.play("disappearing", false);
