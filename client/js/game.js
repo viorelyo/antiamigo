@@ -22,6 +22,8 @@ var game = new Phaser.Game(config);
 var platforms;
 const sprites = ["dude", "frog", "pink", "guy"];
 
+var playersCollider;
+
 function preload() {
   this.load.image("sky", "../assets/sky.png");
   this.load.image("ground", "../assets/platform.png");
@@ -67,13 +69,6 @@ function create() {
     Object.keys(players).forEach(function(id) {
       if (players[id].playerID === client.socket.id) {
         addPlayer(self, players[id]);
-        self.physics.add.overlap(
-          self.player,
-          self.otherPlayers,
-          playerDead,
-          null,
-          self
-        );
       } else {
         addOtherPlayers(self, players[id]);
       }
@@ -97,20 +92,21 @@ function create() {
   });
 
   client.socket.on("opponentDied", data => {
-    console.log(data);
-    console.log(self.otherPlayers.getChildren());
     self.otherPlayers.getChildren().forEach(function(otherPlayer) {
       if (data.victimID === otherPlayer.playerID) {
         destroyPlayer(otherPlayer);
       }
       if (data.killerID === otherPlayer.playerID) {
-        console.log("found the killer");
+        console.log("found the killer: " + otherPlayer.playerID);
         otherPlayer.setVelocityY(-400);
       }
     });
     if (self.player.playerID === data.killerID) {
-      console.log("found the killer");
+      console.log("You are the killer");
       self.player.setVelocityY(-400);
+    } else if (self.player.playerID === data.victimID) {
+      console.log("You were killed");
+      // destroyPlayer(otherPlayer);
     }
   });
 
@@ -249,6 +245,13 @@ function addPlayer(self, playerInfo) {
   self.player.body.setGravityY(500);
   self.player.setCollideWorldBounds(true);
   self.physics.add.collider(self.player, platforms);
+  playersCollider = self.physics.add.overlap(
+    self.player,
+    self.otherPlayers,
+    playerDead,
+    null,
+    this
+  );
 
   self.player.playerID = playerInfo.playerID;
   self.player.alive = true;
@@ -272,32 +275,42 @@ function addOtherPlayers(self, playerInfo) {
 }
 
 function playerDead(player, otherPlayer) {
-  if (player != null && player.alive) {
-    if (player.body.touching.up) {
-      otherPlayer.setVelocityY(-400);
-      client.socket.emit("playerKilled", {
-        victimID: player.playerID,
-        killerID: otherPlayer.playerID
-      });
-      player.alive = false;
-      destroyPlayer(player);
-    }
+  // if (player != null && player.alive) {
+
+  if (player.body.touching.right || player.body.touching.left) {
+    console.log("Collide lateral");
+  } else if (player.body.touching.down && otherPlayer.body.touching.up) {
+    // otherPlayer.setVelocityY(-400);
+    // client.socket.emit("playerKilled", {
+    //   victimID: player.playerID,
+    //   killerID: otherPlayer.playerID
+    // });
+    // player.alive = false;
+    // destroyPlayer(player);
+    // console.log("Collider deasupra");
+    // playersCollider.active = false;
+    console.log("Caboom");
   }
+  // }
+  // if (player.body.touching.right || player.body.touching.left) {
+  //   player.alpha = 0.5;
+  // }
+  // else if (otherPlayer.body.touching.down) {
+  //   otherPlayer.setVelocityY(-400);
+  //   destroyPlayer(player);
+  //   client.socket.emit("playerKilled", {
+  //     victimID: player.playerID,
+  //     killerID: otherPlayer.playerID
+  //   });
+  // }
 }
 
-// function onHeadJump(player, otherPlayer) {
-//   // console.log(player.body.touching.up);
-//   //return (player.body.touching.up && player.body.onFloor());
-//   //return (otherPlayerBounds.y < playerBounds.y);
-//   if (otherPlayer.body.touching.down) {
-//     return true;
-//   }
-//   return false;
-// }
-
 function destroyPlayer(player) {
-  player.anims.play("disappearing", false);
-  player.once("animationcomplete", () => {
-    player.destroy();
-  });
+  if (player) {
+    player.alive = false;
+    player.anims.play("disappearing", false);
+    player.once("animationcomplete", () => {
+      player.destroy();
+    });
+  }
 }
