@@ -28,7 +28,7 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 
 ## TODO in Depth
 
-- [ ] Add animation on kill
+- [x] Add animation on kill
 - [ ] Delete branches of done features
 - [ ] What the fuck is : `.setScale(2).refreshBody();` applied on bottom platform?
 - [ ] Add Scoring Board (lateral / top)

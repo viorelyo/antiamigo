@@ -92,7 +92,7 @@ function create() {
   client.socket.on("opponentDied", data => {
     self.otherPlayers.getChildren().forEach(function(otherPlayer) {
       if (data.victimID === otherPlayer.playerID) {
-        destroyPlayer(otherPlayer);
+        destroyPlayer(self, otherPlayer);
       }
       if (data.killerID === otherPlayer.playerID) {
         console.log("found the killer: " + otherPlayer.playerID);
@@ -104,14 +104,14 @@ function create() {
       self.player.setVelocityY(-400);
     } else if (self.player.playerID === data.victimID) {
       console.log("You were killed");
-      destroyPlayer(self.player);
+      destroyPlayer(self, self.player);
     }
   });
 
   client.socket.on("disconnect", function(playerID) {
     self.otherPlayers.getChildren().forEach(function(otherPlayer) {
       if (playerID === otherPlayer.playerID) {
-        destroyPlayer(otherPlayer);
+        destroyPlayer(self, otherPlayer);
       }
     });
   });
@@ -129,7 +129,7 @@ function create() {
   cursors = this.input.keyboard.createCursorKeys();
 
   this.anims.create({
-    key: "disappearing",
+    key: "death",
     frames: this.anims.generateFrameNumbers("disappearing", {
       start: 0,
       end: 6
@@ -283,12 +283,18 @@ function playerDead(player, otherPlayer) {
   }
 }
 
-function destroyPlayer(player) {
-  if (player) {
-    player.alive = false;
-    // player.anims.play("disappearing", false);
-    // player.once("animationcomplete", () => {
-    player.destroy();
-    // });
-  }
+function destroyPlayer(self, player) {
+  player.alive = false;
+  player.destroy();
+
+  killBoom = self.physics.add.sprite(player.x, player.y, "disappearing");
+  killBoom.body.setAllowGravity(false);
+  killBoom.on(
+    "animationcomplete",
+    () => {
+      killBoom.destroy();
+    },
+    self
+  );
+  killBoom.play("death");
 }
