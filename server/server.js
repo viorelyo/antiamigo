@@ -21,17 +21,19 @@ io.on("connection", socket => {
   socket.broadcast.emit("newPlayer", players[socket.id]);
 
   socket.on("playerMovement", movementData => {
-    players[socket.id].x = movementData.x;
-    players[socket.id].y = movementData.y;
-    players[socket.id].direction = movementData.direction;
-    socket.broadcast.emit("playerMoved", players[socket.id]);
+    if (players[socket.id]) {
+      players[socket.id].x = movementData.x;
+      players[socket.id].y = movementData.y;
+      players[socket.id].direction = movementData.direction;
+      socket.broadcast.emit("playerMoved", players[socket.id]);
+    }
   });
 
   socket.on("playerKilled", data => {
     console.log("Player killed: " + data.victimID + " by: " + data.killerID);
     playerLeft(data.victimID);
     //TODO raise points for killerID
-    socket.broadcast.emit("opponentDied", data);
+    io.emit("opponentDied", data);
   });
 
   socket.on("disconnect", () => {
