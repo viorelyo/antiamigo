@@ -25,7 +25,8 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 - [ ] Kill-by-Arrow Feature
 - [ ] Find sprites for arrow
 - [ ] Add sounds
-- [ ] Add more Bonuses: Wings (maybe?!?!)... TBA
+- [ ] Add more Bonuses: Wings, Bonus Arrow, Speedies... TBA
+- [ ] Split in modules
 
 ## TODO in Depth
 
