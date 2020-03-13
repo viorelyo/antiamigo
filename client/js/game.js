@@ -23,6 +23,8 @@ var platforms;
 const sprites = ["dude", "frog", "pink", "guy"];
 
 function preload() {
+  var self = this;
+
   this.load.image("sky", "../assets/sky.png");
   this.load.image("ground", "../assets/platform.png");
 
@@ -31,7 +33,6 @@ function preload() {
     frameHeight: 96
   });
 
-  var self = this;
   sprites.forEach(sprite => {
     self.load.spritesheet(
       sprite + "-idle-left",
@@ -95,15 +96,12 @@ function create() {
         destroyPlayer(self, otherPlayer);
       }
       if (data.killerID === otherPlayer.playerID) {
-        console.log("found the killer: " + otherPlayer.playerID);
         otherPlayer.setVelocityY(-400);
       }
     });
     if (self.player.playerID === data.killerID) {
-      console.log("You are the killer");
       self.player.setVelocityY(-400);
     } else if (self.player.playerID === data.victimID) {
-      console.log("You were killed");
       destroyPlayer(self, self.player);
     }
   });
@@ -212,6 +210,8 @@ function update() {
       playerJump(this.player);
     }
 
+    this.physics.world.wrap(this.player);
+
     var x = this.player.x;
     var y = this.player.y;
     if (
@@ -240,7 +240,7 @@ function addPlayer(self, playerInfo) {
   );
   self.player.setBounce(0);
   self.player.body.setGravityY(500);
-  self.player.setCollideWorldBounds(true);
+  // self.player.setCollideWorldBounds(true);
   self.physics.add.collider(
     self.player,
     platforms,
@@ -280,9 +280,8 @@ function addOtherPlayers(self, playerInfo) {
 
 function handlePlayersOverlap(player, otherPlayer) {
   if (player.body.touching.right || player.body.touching.left) {
-    console.log("Collide lateral");
+    //pass
   } else if (player.body.touching.down && otherPlayer.body.touching.up) {
-    console.log("Caboom");
     client.socket.emit("playerKilled", {
       killerID: player.playerID,
       victimID: otherPlayer.playerID

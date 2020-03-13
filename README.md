@@ -17,6 +17,7 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 - [x] Select maximum limit of players for multiplayer **4**
 - [x] Choose sprites for players
 - [x] Kill-by-Jump-On-Head Feature
+- [x] Remove world bounds
 - [ ] Score Board
 - [ ] Lobby
 - [ ] Find game map + Create
