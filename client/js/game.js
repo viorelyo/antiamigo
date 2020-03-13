@@ -208,8 +208,8 @@ function update() {
       }
     }
 
-    if (cursors.up.isDown && this.player.body.touching.down) {
-      this.player.setVelocityY(-700);
+    if (Phaser.Input.Keyboard.JustDown(cursors.up)) {
+      playerJump(this.player);
     }
 
     var x = this.player.x;
@@ -241,11 +241,17 @@ function addPlayer(self, playerInfo) {
   self.player.setBounce(0);
   self.player.body.setGravityY(500);
   self.player.setCollideWorldBounds(true);
-  self.physics.add.collider(self.player, platforms);
+  self.physics.add.collider(
+    self.player,
+    platforms,
+    handlePlatformCollision,
+    null,
+    this
+  );
   self.physics.add.overlap(
     self.player,
     self.otherPlayers,
-    playerDead,
+    handlePlayersOverlap,
     null,
     this
   );
@@ -254,6 +260,7 @@ function addPlayer(self, playerInfo) {
   self.player.alive = true;
   self.player.direction = playerInfo.direction;
   self.player.spriteKey = playerInfo.spriteKey;
+  self.player.jumpCount = 0;
 }
 
 function addOtherPlayers(self, playerInfo) {
@@ -271,7 +278,7 @@ function addOtherPlayers(self, playerInfo) {
   self.otherPlayers.add(otherPlayer);
 }
 
-function playerDead(player, otherPlayer) {
+function handlePlayersOverlap(player, otherPlayer) {
   if (player.body.touching.right || player.body.touching.left) {
     console.log("Collide lateral");
   } else if (player.body.touching.down && otherPlayer.body.touching.up) {
@@ -280,6 +287,12 @@ function playerDead(player, otherPlayer) {
       killerID: player.playerID,
       victimID: otherPlayer.playerID
     });
+  }
+}
+
+function handlePlatformCollision(player, platform) {
+  if (player.body.touching.down) {
+    player.jumpCount = 0;
   }
 }
 
@@ -297,4 +310,23 @@ function destroyPlayer(self, player) {
     self
   );
   killBoom.play("death");
+}
+
+function playerJump(player) {
+  if (player.jumpCount == 0) {
+    firstJump(player);
+  }
+  if (player.jumpCount == 1 && !player.body.touching.down) {
+    secondJump(player);
+  }
+}
+
+function firstJump(player) {
+  player.jumpCount++;
+  player.setVelocityY(-500);
+}
+
+function secondJump(player) {
+  player.jumpCount++;
+  player.setVelocityY(-500);
 }
