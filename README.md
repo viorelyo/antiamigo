@@ -18,8 +18,8 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 - [x] Choose sprites for players
 - [x] Kill-by-Jump-On-Head Feature
 - [x] Remove world bounds
+- [x] Lobby
 - [ ] Score Board
-- [ ] Lobby
 - [ ] Find game map + Create
 - [ ] Design: Center canvas + set the copyrights
 - [ ] Kill-by-Arrow Feature
@@ -30,11 +30,12 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 
 ## TODO in Depth
 
-- [x] Add animation on kill
-- [x] Delete branches of done features
+- [ ] Handle already Started Game - don't allow other players to connect
 - [ ] What the fuck is : `.setScale(2).refreshBody();` applied on bottom platform?
 - [ ] Add Scoring Board (lateral / top)
-- [ ] Add lobby
+- [x] Add animation on kill
+- [x] Delete branches of done features
+- [x] Add lobby
 - [x] Double jump
 - [x] Fix jump on head
 - [x] Add bounce when player kills oponent jumping on head
@@ -50,3 +51,4 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 - https://socket.io/docs/emit-cheatsheet/ (**Socket.IO**)
 - https://www.html5gamedevs.com/topic/38994-phaser3-game-example-using-scenes-a-preloader-and-a-loading-bar/?tab=comments#comment-222636 (**States**)
 - https://www.dynetisgames.com/2018/02/01/deploy-multiplayer-phaser-game-heroku/ (**Heroku**)
+- https://phaser.discourse.group/t/phaser-3-real-time-multiplayer-game-with-physics/1739 (**Multiple Scenes handled**)

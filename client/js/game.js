@@ -1,5 +1,3 @@
-var platforms;
-
 var Game = new Phaser.Class({
   Extends: Phaser.Scene,
   initialize: function Game() {
@@ -7,10 +5,9 @@ var Game = new Phaser.Class({
   },
 
   init: function(data) {
-    console.log(data);
     this.socket = data.socket;
-    // this.opponents = data.opponents;
-    console.log("Socket: ", this.socket);
+    this.players = data.players;
+    console.log("Data: ", data);
   },
 
   preload: function() {},
@@ -22,28 +19,41 @@ var Game = new Phaser.Class({
     // this.socket = io();
     // this.socket.emit("gameJoined");
 
-    this.otherPlayers = this.physics.add.group();
-    console.log("Socket: ", this.socket);
-    // Object.keys(this.opponents).forEach(function(id) {
-    //   if (self.opponents[id].playerID === self.socket.id) {
-    //     self.addPlayer(self.opponents[id]);
-    //   } else {
-    //     self.addOtherPlayers(self.opponents[id]);
-    //   }
-    // });
-    this.socket.on("currentPlayers", function(players) {
-      Object.keys(players).forEach(function(id) {
-        if (players[id].playerID === self.socket.id) {
-          self.addPlayer(players[id]);
-        } else {
-          self.addOtherPlayers(players[id]);
-        }
-      });
-    });
+    this.add.image(400, 300, "sky");
 
-    this.socket.on("newPlayer", function(playerInfo) {
-      self.addOtherPlayers(playerInfo);
+    this.platforms = this.physics.add.staticGroup();
+    this.platforms.create(400, 568, "ground");
+    //.setScale(2);
+    // .refreshBody();
+    this.platforms.create(600, 400, "ground");
+    this.platforms.create(50, 250, "ground");
+    this.platforms.create(750, 220, "ground");
+
+    cursors = this.input.keyboard.createCursorKeys();
+
+    this.otherPlayers = this.physics.add.group();
+
+    Object.keys(this.players).forEach(function(id) {
+      if (self.players[id].playerID === self.socket.id) {
+        self.addPlayer(self.players[id]);
+      } else {
+        self.addOtherPlayers(self.players[id]);
+      }
     });
+    // this.socket.on("currentPlayers", function(players) {
+    //   Object.keys(players).forEach(function(id) {
+    //     if (players[id].playerID === self.socket.id) {
+    //       self.addPlayer(players[id]);
+    //     } else {
+    //       self.addOtherPlayers(players[id]);
+    //     }
+    //   });
+    // });
+
+    // this.socket.on("newPlayer", function(playerInfo) {
+    // console.log("New Player caught");
+    // self.addOtherPlayers(playerInfo);
+    // });
 
     this.socket.on("playerMoved", playerInfo => {
       self.otherPlayers.getChildren().forEach(otherPlayer => {
@@ -80,18 +90,6 @@ var Game = new Phaser.Class({
         }
       });
     });
-
-    this.add.image(400, 300, "sky");
-
-    platforms = this.physics.add.staticGroup();
-    platforms.create(400, 568, "ground");
-    //.setScale(2);
-    // .refreshBody();
-    platforms.create(600, 400, "ground");
-    platforms.create(50, 250, "ground");
-    platforms.create(750, 220, "ground");
-
-    cursors = this.input.keyboard.createCursorKeys();
   },
 
   update: function() {
@@ -158,7 +156,7 @@ var Game = new Phaser.Class({
     // this.player.setCollideWorldBounds(true);
     this.physics.add.collider(
       this.player,
-      platforms,
+      this.platforms,
       this.handlePlatformCollision,
       null,
       this
@@ -181,6 +179,7 @@ var Game = new Phaser.Class({
   },
 
   addOtherPlayers: function(playerInfo) {
+    console.log("PlayerInfo in addOtherPlayers: ", playerInfo);
     const otherPlayer = this.physics.add.sprite(
       playerInfo.x,
       playerInfo.y,
@@ -189,8 +188,8 @@ var Game = new Phaser.Class({
     otherPlayer.playerID = playerInfo.playerID;
     otherPlayer.setBounce(0);
     otherPlayer.body.setGravityY(500);
-    otherPlayer.setCollideWorldBounds(true);
-    this.physics.add.collider(otherPlayer, platforms);
+    // otherPlayer.setCollideWorldBounds(true);
+    this.physics.add.collider(otherPlayer, this.platforms);
 
     this.otherPlayers.add(otherPlayer);
   },

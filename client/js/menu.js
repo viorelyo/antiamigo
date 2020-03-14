@@ -7,15 +7,28 @@ var Menu = new Phaser.Class({
   preload: function() {},
 
   create: function() {
-    console.log("Created");
     let socket = io();
 
-    console.log(socket);
+    this.allPlayers;
 
-    // socket.on("currentPlayers", players => {
-    // console.log("Oponents got in Menu", players);
-    // this.scene.start("game", { socket: socket, opponents: players });
-    this.scene.start("game", { socket: socket });
-    // });
+    this.input.keyboard.on("keydown_A", function(event) {
+      console.log("Hello from the A Key!");
+      socket.emit("startGame");
+    });
+
+    socket.on("currentPlayers", players => {
+      console.log("Players got in Menu: ", players);
+      this.allPlayers = players;
+    });
+
+    socket.on("newPlayer", playerInfo => {
+      console.log("New Player Joined");
+      this.allPlayers[playerInfo.playerID] = playerInfo;
+      console.log("Updated Players", this.allPlayers);
+    });
+
+    socket.on("gameStarting", () => {
+      this.scene.start("game", { socket: socket, players: this.allPlayers });
+    });
   }
 });

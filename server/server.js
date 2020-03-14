@@ -6,6 +6,12 @@ const io = require("socket.io").listen(server);
 
 var players = {};
 const sprites = ["dude", "frog", "pink", "guy"];
+const positions = [
+  { x: 250, y: 50 },
+  { x: 400, y: 50 },
+  { x: 250, y: 200 },
+  { x: 400, y: 200 }
+];
 
 const client = "client";
 
@@ -18,10 +24,11 @@ app.get("*", function(req, res) {
 io.on("connection", socket => {
   playerJoined(socket);
   socket.emit("currentPlayers", players);
+  socket.broadcast.emit("newPlayer", players[socket.id]);
 
-  socket.on("gameJoined", () => {
-    console.log("GameJoined: " + socket.id);
-    socket.broadcast.emit("newPlayer", players[socket.id]);
+  socket.on("startGame", () => {
+    console.log("Game Started");
+    io.emit("gameStarting");
   });
 
   socket.on("playerMovement", movementData => {
@@ -55,8 +62,8 @@ function playerJoined(socket) {
   const randomInt = Math.floor(Math.random() * 4);
 
   players[socket.id] = {
-    x: 250,
-    y: 50,
+    x: positions[randomInt].x,
+    y: positions[randomInt].y,
     direction: "idle-right",
     spriteKey: sprites[randomInt],
     playerID: socket.id
