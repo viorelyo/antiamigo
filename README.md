@@ -48,3 +48,5 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 - https://www.codeandweb.com/physicseditor/tutorials/phaser-p2-physics-example-tutorial (**Physics**)
 - https://www.emanueleferonato.com/2018/05/03/the-basics-behind-jumping-on-enemies-feature-explained-with-phaser-and-arcade-physics-updated-to-phaser-3/ (**On-Head-Jump**)
 - https://socket.io/docs/emit-cheatsheet/ (**Socket.IO**)
+- https://www.html5gamedevs.com/topic/38994-phaser3-game-example-using-scenes-a-preloader-and-a-loading-bar/?tab=comments#comment-222636 (**States**)
+- https://www.dynetisgames.com/2018/02/01/deploy-multiplayer-phaser-game-heroku/ (**Heroku**)

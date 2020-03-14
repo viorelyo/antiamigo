@@ -18,7 +18,11 @@ app.get("*", function(req, res) {
 io.on("connection", socket => {
   playerJoined(socket);
   socket.emit("currentPlayers", players);
-  socket.broadcast.emit("newPlayer", players[socket.id]);
+
+  socket.on("gameJoined", () => {
+    console.log("GameJoined: " + socket.id);
+    socket.broadcast.emit("newPlayer", players[socket.id]);
+  });
 
   socket.on("playerMovement", movementData => {
     if (players[socket.id]) {
