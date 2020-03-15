@@ -7,7 +7,7 @@ var Menu = new Phaser.Class({
   preload: function() {},
 
   create: function() {
-    this.add.image(400, 300, "sky");
+    this.add.image(480, 300, "sky");
 
     let socket = io();
     let allPlayers = [];

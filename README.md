@@ -33,7 +33,7 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 - [ ] Do not destroy "dissapear" sprite each time (just on endgame)
 - [ ] Handle Death ? (Do not detroy player, just kill)
 - [ ] Add text on main screen + mock img + show joined players + setPlayerName
-- [ ] Add loading bar in Preloader
+- [x] Add loading bar in Preloader
 - [ ] Handle already Started Game - don't allow other players to connect
 - [ ] What the fuck is : `.setScale(2).refreshBody();` applied on bottom platform?
 - [ ] Add Scoring Board (lateral / top)

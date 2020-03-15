@@ -14,7 +14,7 @@ var Game = new Phaser.Class({
   create: function() {
     var self = this;
 
-    this.add.image(400, 300, "sky");
+    this.add.image(480, 300, "sky");
     this.platforms = this.physics.add.staticGroup();
     this.platforms.create(400, 568, "ground");
     //.setScale(2);
@@ -74,28 +74,30 @@ var Game = new Phaser.Class({
 
   update: function() {
     if (this.player && this.player.alive) {
-      if (cursors.left.isDown) {
-        this.player.setVelocityX(-200);
-        this.player.anims.play(this.player.spriteKey + "-left", true);
-        this.player.direction = "left";
-      } else if (cursors.right.isDown) {
-        this.player.setVelocityX(200);
-        this.player.anims.play(this.player.spriteKey + "-right", true);
-        this.player.direction = "right";
-      } else {
-        this.player.setVelocityX(0);
-        if (
-          this.player.direction === "left" ||
-          this.player.direction === "idle-left"
-        ) {
-          this.player.anims.play(this.player.spriteKey + "-idle-left", true);
-          this.player.direction = "idle-left";
-        } else if (
-          this.player.direction === "right" ||
-          this.player.direction === "idle-right"
-        ) {
-          this.player.anims.play(this.player.spriteKey + "-idle-right", true);
-          this.player.direction = "idle-right";
+      if (this.player.body.velocity.y >= 0) {
+        if (cursors.left.isDown) {
+          this.player.setVelocityX(-200);
+          this.player.anims.play(this.player.spriteKey + "-left", true);
+          this.player.direction = "left";
+        } else if (cursors.right.isDown) {
+          this.player.setVelocityX(200);
+          this.player.anims.play(this.player.spriteKey + "-right", true);
+          this.player.direction = "right";
+        } else {
+          this.player.setVelocityX(0);
+          if (
+            this.player.direction === "left" ||
+            this.player.direction === "idle-left"
+          ) {
+            this.player.anims.play(this.player.spriteKey + "-idle-left", true);
+            this.player.direction = "idle-left";
+          } else if (
+            this.player.direction === "right" ||
+            this.player.direction === "idle-right"
+          ) {
+            this.player.anims.play(this.player.spriteKey + "-idle-right", true);
+            this.player.direction = "idle-right";
+          }
         }
       }
 
@@ -204,22 +206,23 @@ var Game = new Phaser.Class({
     killBoom.play("death");
   },
 
-  playerJump: function(player) {
-    if (player.jumpCount == 0) {
-      this.firstJump(player);
+  playerJump: function() {
+    if (this.player.jumpCount == 0) {
+      this.firstJump();
     }
-    if (player.jumpCount == 1 && !player.body.touching.down) {
-      this.secondJump(player);
+    if (this.player.jumpCount == 1 && !this.player.body.touching.down) {
+      this.secondJump();
     }
   },
 
-  firstJump: function(player) {
-    player.jumpCount++;
-    player.setVelocityY(-500);
+  firstJump: function() {
+    this.player.jumpCount++;
+    this.player.setVelocityY(-500);
   },
 
-  secondJump: function(player) {
-    player.jumpCount++;
-    player.setVelocityY(-500);
+  secondJump: function() {
+    this.player.jumpCount++;
+    this.player.setVelocityY(-500);
+    this.player.anims.play(this.player.spriteKey + "-double-jump", true);
   }
 });

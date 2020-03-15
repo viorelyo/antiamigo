@@ -52,8 +52,8 @@ var Preloader = new Phaser.Class({
   preload: function() {
     var self = this;
 
-    this.loadingbar_bg = this.add.sprite(400, 300, "loadingbar_bg");
-    this.loadingbar_fill = this.add.sprite(400, 300, "loadingbar_fill");
+    this.loadingbar_bg = this.add.sprite(480, 300, "loadingbar_bg");
+    this.loadingbar_fill = this.add.sprite(480, 300, "loadingbar_fill");
     this.setPreloadSprite(this.loadingbar_fill);
 
     this.load.image("sky", "../assets/sky.png");
@@ -83,6 +83,12 @@ var Preloader = new Phaser.Class({
       self.load.spritesheet(
         sprite + "-left",
         "../assets/" + sprite + "-left.png",
+        { frameWidth: 32, frameHeight: 32 }
+      );
+
+      self.load.spritesheet(
+        sprite + "-double-jump",
+        "../assets/" + sprite + "-double-jump.png",
         { frameWidth: 32, frameHeight: 32 }
       );
     });
@@ -138,6 +144,16 @@ var Preloader = new Phaser.Class({
         }),
         frameRate: 30,
         repeat: -1
+      });
+
+      this.anims.create({
+        key: sprite + "-double-jump",
+        frames: this.anims.generateFrameNumbers(sprite + "-double-jump", {
+          start: 0,
+          end: 5
+        }),
+        frameRate: 30,
+        repeat: 1
       });
     });
 
