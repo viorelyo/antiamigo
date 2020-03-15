@@ -43,7 +43,6 @@ io.on("connection", socket => {
   socket.on("playerKilled", data => {
     console.log("Player killed: " + data.victimID + " by: " + data.killerID);
     playerLeft(data.victimID);
-    //TODO raise points for killerID
     io.emit("opponentDied", data);
   });
 
@@ -68,7 +67,7 @@ function playerJoined(socket) {
     spriteKey: sprites[randomInt],
     playerID: socket.id
   };
-  console.log("Player joined: " + socket.id);
+  console.log("Player joined lobby: " + socket.id);
 }
 
 function playerLeft(socketID) {

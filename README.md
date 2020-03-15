@@ -26,10 +26,13 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 - [ ] Find sprites for arrow
 - [ ] Add sounds
 - [ ] Add more Bonuses: Wings, Bonus Arrow, Speedies... TBA
-- [ ] Split in modules
+- [x] Split in modules
 
 ## TODO in Depth
 
+- [ ] Handle Death ? (Do not detroy player, just kill)
+- [ ] Add text on main screen + mock img + show joined players + setPlayerName
+- [ ] Add loading bar in Preloader
 - [ ] Handle already Started Game - don't allow other players to connect
 - [ ] What the fuck is : `.setScale(2).refreshBody();` applied on bottom platform?
 - [ ] Add Scoring Board (lateral / top)
@@ -52,3 +55,4 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 - https://www.html5gamedevs.com/topic/38994-phaser3-game-example-using-scenes-a-preloader-and-a-loading-bar/?tab=comments#comment-222636 (**States**)
 - https://www.dynetisgames.com/2018/02/01/deploy-multiplayer-phaser-game-heroku/ (**Heroku**)
 - https://phaser.discourse.group/t/phaser-3-real-time-multiplayer-game-with-physics/1739 (**Multiple Scenes handled**)
+- https://yocton.ru/phaser3/sozdanie-mnogopolzovatelskoi-igry-v-phaser-3-s-socket-io-chast-2 (**Multiplayer Approach**)

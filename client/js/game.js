@@ -7,20 +7,14 @@ var Game = new Phaser.Class({
   init: function(data) {
     this.socket = data.socket;
     this.players = data.players;
-    console.log("Data: ", data);
   },
 
   preload: function() {},
 
   create: function() {
     var self = this;
-    // console.log("CurrentPlayers in game: ", this.opponents);
-
-    // this.socket = io();
-    // this.socket.emit("gameJoined");
 
     this.add.image(400, 300, "sky");
-
     this.platforms = this.physics.add.staticGroup();
     this.platforms.create(400, 568, "ground");
     //.setScale(2);
@@ -40,20 +34,6 @@ var Game = new Phaser.Class({
         self.addOtherPlayers(self.players[id]);
       }
     });
-    // this.socket.on("currentPlayers", function(players) {
-    //   Object.keys(players).forEach(function(id) {
-    //     if (players[id].playerID === self.socket.id) {
-    //       self.addPlayer(players[id]);
-    //     } else {
-    //       self.addOtherPlayers(players[id]);
-    //     }
-    //   });
-    // });
-
-    // this.socket.on("newPlayer", function(playerInfo) {
-    // console.log("New Player caught");
-    // self.addOtherPlayers(playerInfo);
-    // });
 
     this.socket.on("playerMoved", playerInfo => {
       self.otherPlayers.getChildren().forEach(otherPlayer => {
@@ -174,12 +154,9 @@ var Game = new Phaser.Class({
     this.player.direction = playerInfo.direction;
     this.player.spriteKey = playerInfo.spriteKey;
     this.player.jumpCount = 0;
-
-    console.log("baiatul gigel created : ", this.player);
   },
 
   addOtherPlayers: function(playerInfo) {
-    console.log("PlayerInfo in addOtherPlayers: ", playerInfo);
     const otherPlayer = this.physics.add.sprite(
       playerInfo.x,
       playerInfo.y,

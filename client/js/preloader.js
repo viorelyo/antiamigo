@@ -99,7 +99,6 @@ var Preloader = new Phaser.Class({
       });
     });
 
-    console.log("Starting menu");
     this.scene.start("menu");
   }
 });
