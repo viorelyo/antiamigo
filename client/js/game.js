@@ -17,8 +17,6 @@ var Game = new Phaser.Class({
     this.add.image(480, 300, "sky");
     this.platforms = this.physics.add.staticGroup();
     this.platforms.create(400, 568, "ground");
-    //.setScale(2);
-    // .refreshBody();
     this.platforms.create(600, 400, "ground");
     this.platforms.create(50, 250, "ground");
     this.platforms.create(750, 220, "ground");
@@ -47,7 +45,7 @@ var Game = new Phaser.Class({
       });
     });
 
-    this.socket.on("opponentDied", data => {
+    this.socket.on("playerDied", data => {
       self.otherPlayers.getChildren().forEach(function(otherPlayer) {
         if (data.victimID === otherPlayer.playerID) {
           self.destroyPlayer(otherPlayer);
@@ -74,30 +72,42 @@ var Game = new Phaser.Class({
 
   update: function() {
     if (this.player && this.player.alive) {
-      if (this.player.body.velocity.y >= 0) {
-        if (cursors.left.isDown) {
-          this.player.setVelocityX(-200);
+      if (cursors.left.isDown) {
+        this.player.setVelocityX(-200);
+        if (this.player.body.velocity.y >= 0) {
           this.player.anims.play(this.player.spriteKey + "-left", true);
-          this.player.direction = "left";
-        } else if (cursors.right.isDown) {
-          this.player.setVelocityX(200);
+        }
+        this.player.direction = "left";
+      } else if (cursors.right.isDown) {
+        this.player.setVelocityX(200);
+        if (this.player.body.velocity.y >= 0) {
           this.player.anims.play(this.player.spriteKey + "-right", true);
-          this.player.direction = "right";
-        } else {
-          this.player.setVelocityX(0);
-          if (
-            this.player.direction === "left" ||
-            this.player.direction === "idle-left"
-          ) {
-            this.player.anims.play(this.player.spriteKey + "-idle-left", true);
-            this.player.direction = "idle-left";
-          } else if (
-            this.player.direction === "right" ||
-            this.player.direction === "idle-right"
-          ) {
-            this.player.anims.play(this.player.spriteKey + "-idle-right", true);
-            this.player.direction = "idle-right";
-          }
+        }
+        this.player.direction = "right";
+      } else if (
+        this.player.direction &&
+        this.player.direction === "double-jump" &&
+        this.player.y > this.player.oldPosition.y
+      ) {
+        // Reset player's position when he is falling after a double-jump
+        this.player.anims.play(
+          this.player.spriteKey + "-" + this.player.directionBeforeJump
+        );
+        this.player.direction = this.player.directionBeforeJump;
+      } else {
+        this.player.setVelocityX(0);
+        if (
+          this.player.direction === "left" ||
+          this.player.direction === "idle-left"
+        ) {
+          this.player.anims.play(this.player.spriteKey + "-idle-left", true);
+          this.player.direction = "idle-left";
+        } else if (
+          this.player.direction === "right" ||
+          this.player.direction === "idle-right"
+        ) {
+          this.player.anims.play(this.player.spriteKey + "-idle-right", true);
+          this.player.direction = "idle-right";
         }
       }
 
@@ -193,16 +203,13 @@ var Game = new Phaser.Class({
   destroyPlayer: function(player) {
     player.alive = false;
     player.destroy();
+    // this.player.setActive(false).setVisible(false);
 
     killBoom = this.physics.add.sprite(player.x, player.y, "disappearing");
     killBoom.body.setAllowGravity(false);
-    killBoom.on(
-      "animationcomplete",
-      () => {
-        killBoom.destroy();
-      },
-      this
-    );
+    killBoom.on("animationcomplete", () => {
+      killBoom.destroy();
+    });
     killBoom.play("death");
   },
 
@@ -222,6 +229,8 @@ var Game = new Phaser.Class({
 
   secondJump: function() {
     this.player.jumpCount++;
+    this.player.directionBeforeJump = this.player.direction;
+    this.player.direction = "double-jump";
     this.player.setVelocityY(-500);
     this.player.anims.play(this.player.spriteKey + "-double-jump", true);
   }

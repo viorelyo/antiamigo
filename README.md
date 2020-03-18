@@ -14,6 +14,7 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
   6. 3 States: `Start Game`, `Game`, `End Game`
   7. Low light (simulate towerfall light conditions)
 
+- [ ] Handle one single game (one room for 4 players) => TODO: Handle more parallel games
 - [x] Select maximum limit of players for multiplayer **4**
 - [x] Choose sprites for players
 - [x] Kill-by-Jump-On-Head Feature
@@ -30,14 +31,14 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 
 ## TODO in Depth
 
-- [ ] Handle already Started Game - don't allow other players to connect
-- [ ] Fix right/left move when player is jumping
+- [x] Handle already Started Game - don't allow other players to connect
 - [ ] Do not destroy "dissapear" sprite each time (just on endgame)
 - [ ] Handle Death ? (Do not detroy player, just kill)
 - [ ] Add text on main screen + mock img + show joined players + setPlayerName
-- [x] Add loading bar in Preloader
 - [ ] What the fuck is : `.setScale(2).refreshBody();` applied on bottom platform?
 - [ ] Add Scoring Board (lateral / top)
+- [x] Fix right/left move when player is jumping
+- [x] Add loading bar in Preloader
 - [x] Add animation on kill
 - [x] Delete branches of done features
 - [x] Add lobby

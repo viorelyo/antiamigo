@@ -46,7 +46,7 @@ var Preloader = new Phaser.Class({
   },
 
   onFileProgress: function(file) {
-    console.log("onFileProgress: file.key=" + file.key);
+    // console.log("onFileProgress: file.key=" + file.key);
   },
 
   preload: function() {

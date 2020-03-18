@@ -10,14 +10,26 @@ var Menu = new Phaser.Class({
     this.add.image(480, 300, "sky");
 
     let socket = io();
-    let allPlayers = [];
+    let allPlayers = {};
+    let gameIsRunning;
 
     this.input.keyboard.on("keydown_SPACE", function(event) {
-      socket.emit("startGame");
+      if (!gameIsRunning) {
+        socket.emit("startGame");
+      } else {
+        console.log("Sorry, game is running");
+      }
     });
 
-    socket.on("currentPlayers", players => {
-      allPlayers = players;
+    socket.on("currentPlayers", data => {
+      allPlayers = data.players;
+      gameIsRunning = data.gameIsRunning;
+    });
+
+    socket.on("gameIsAvailable", data => {
+      console.log("Game is available", data);
+      allPlayers = data.players;
+      gameIsRunning = data.gameIsRunning;
     });
 
     socket.on("newPlayer", playerInfo => {

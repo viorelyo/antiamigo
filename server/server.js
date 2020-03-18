@@ -4,6 +4,11 @@ const path = require("path");
 const server = require("http").Server(app);
 const io = require("socket.io").listen(server);
 
+var runningGame = {
+  gameIsRunning: false,
+  activePlayers: []
+};
+
 var players = {};
 const sprites = ["dude", "frog", "pink", "guy"];
 const positions = [
@@ -23,11 +28,21 @@ app.get("*", function(req, res) {
 
 io.on("connection", socket => {
   playerJoined(socket);
-  socket.emit("currentPlayers", players);
-  socket.broadcast.emit("newPlayer", players[socket.id]);
+  if (runningGame.gameIsRunning) {
+    socket.emit("currentPlayers", {
+      players: {},
+      gameIsRunning: runningGame.gameIsRunning
+    });
+  } else {
+    socket.emit("currentPlayers", {
+      players: players,
+      gameIsRunning: runningGame.gameIsRunning
+    });
+    socket.broadcast.emit("newPlayer", players[socket.id]);
+  }
 
   socket.on("startGame", () => {
-    console.log("Game Started");
+    runGame();
     io.emit("gameStarting");
   });
 
@@ -42,8 +57,8 @@ io.on("connection", socket => {
 
   socket.on("playerKilled", data => {
     console.log("Player killed: " + data.victimID + " by: " + data.killerID);
-    playerLeft(data.victimID);
-    io.emit("opponentDied", data);
+    // playerLeft(data.victimID);
+    io.emit("playerDied", data);
   });
 
   socket.on("disconnect", () => {
@@ -70,6 +85,27 @@ function playerJoined(socket) {
   console.log("Player joined lobby: " + socket.id);
 }
 
+function runGame() {
+  for (const [key, value] of Object.entries(players)) {
+    runningGame.activePlayers.push(key);
+  }
+
+  runningGame.gameIsRunning = true;
+  console.log("Game started");
+}
+
 function playerLeft(socketID) {
+  const index = runningGame.activePlayers.indexOf(players[socketID].playerID);
+  if (index > -1) {
+    runningGame.activePlayers.splice(index, 1);
+  }
   delete players[socketID];
+
+  if (runningGame.activePlayers.length === 0) {
+    runningGame.gameIsRunning = false;
+    io.emit("gameIsAvailable", {
+      players: players,
+      gameIsRunning: runningGame.gameIsRunning
+    });
+  }
 }
