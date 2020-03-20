@@ -14,6 +14,7 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
   6. 3 States: `Start Game`, `Game`, `End Game`
   7. Low light (simulate towerfall light conditions)
 
+- [ ] Download all js libraries and store offline (rexui, phaser)
 - [ ] Handle one single game (one room for 4 players) => TODO: Handle more parallel games
 - [x] Select maximum limit of players for multiplayer **4**
 - [x] Choose sprites for players
