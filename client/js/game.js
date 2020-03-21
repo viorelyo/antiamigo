@@ -1,3 +1,5 @@
+const avatarPositions = [560, 410, 260];
+
 var Game = new Phaser.Class({
   Extends: Phaser.Scene,
   initialize: function Game() {
@@ -15,6 +17,7 @@ var Game = new Phaser.Class({
     var self = this;
 
     this.add.image(480, 300, "sky");
+
     this.platforms = this.physics.add.staticGroup();
     this.platforms.create(400, 568, "ground");
     this.platforms.create(600, 400, "ground");
@@ -32,6 +35,8 @@ var Game = new Phaser.Class({
         self.addOtherPlayers(self.players[id]);
       }
     });
+
+    this.drawScoreboard();
 
     this.socket.on("playerMoved", playerInfo => {
       self.otherPlayers.getChildren().forEach(otherPlayer => {
@@ -233,5 +238,66 @@ var Game = new Phaser.Class({
     this.player.direction = "double-jump";
     this.player.setVelocityY(-500);
     this.player.anims.play(this.player.spriteKey + "-double-jump", true);
+  },
+
+  drawScoreboard: function() {
+    var scoresPositions = avatarPositions;
+    var graphics = this.add.graphics({
+      lineStyle: { width: 2, color: 0xaa00aa }
+    });
+
+    var line1 = new Phaser.Geom.Line(960, 150, 1080, 150);
+    var line2 = new Phaser.Geom.Line(960, 300, 1080, 300);
+    var line3 = new Phaser.Geom.Line(960, 450, 1080, 450);
+
+    graphics.strokeLineShape(line1);
+    graphics.strokeLineShape(line2);
+    graphics.strokeLineShape(line3);
+
+    this.add.text(1000, 10, this.player.spriteKey, {
+      fontSize: 20,
+      color: "#e6ed00"
+    });
+    this.add.text(1010, 50, "9", {
+      fontSize: 30,
+      fontFamily: "Consolas"
+    });
+    this.add.image(1020, 110, this.player.spriteKey + "-avatar").setScale(0.8);
+
+    for (var id in this.players) {
+      if (id != this.player.playerID) {
+        y = scoresPositions.pop();
+
+        this.add.text(1000, y - 100, this.players[id].spriteKey, {
+          fontSize: 20
+        });
+        this.add.text(1010, y - 60, "9", {
+          fontSize: 30,
+          fontFamily: "Consolas"
+        });
+        this.add
+          .image(1020, y, this.players[id].spriteKey + "-avatar")
+          .setScale(0.8);
+      }
+    }
   }
 });
+
+// var graphics = this.add.graphics({
+//   lineStyle: { width: 2, color: 0xaa00aa }
+// });
+// var line1 = new Phaser.Geom.Line(960, 150, 1080, 150);
+// var line2 = new Phaser.Geom.Line(960, 300, 1080, 300);
+// var line3 = new Phaser.Geom.Line(960, 450, 1080, 450);
+
+// graphics.strokeLineShape(line1);
+// graphics.strokeLineShape(line2);
+// graphics.strokeLineShape(line3);
+
+// var nick = this.add.text(1000, 10, "guy", { fontSize: 20 });
+// var score = this.add.text(1010, 50, "9", {
+//   fontSize: 30,
+//   fontFamily: "Consolas"
+// });
+// var avatar = this.add.image(1020, 110, "guy-avatar").setScale(0.8);
+// var avatar = this.add.image(1020, 260, "guy-avatar").setScale(0.8);
