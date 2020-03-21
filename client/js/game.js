@@ -14,7 +14,11 @@ var Game = new Phaser.Class({
   create: function() {
     var self = this;
 
-    this.add.image(480, 300, "sky");
+    let image = this.add.image(480, 300, "sky");
+    let scaleX = 960 / image.width;
+    let scaleY = 600 / image.height;
+    let scale = Math.max(scaleX, scaleY);
+    image.setScale(scale).setScrollFactor(0);
 
     const map = this.make.tilemap({ key: 'map' });
     const tileset = map.addTilesetImage('terrain', 'terrain')

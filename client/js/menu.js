@@ -9,7 +9,12 @@ var Menu = new Phaser.Class({
   preload: function() {},
 
   create: function() {
-    this.add.image(480, 300, "sky");
+    let image = this.add.image(480, 300, "sky");
+    let scaleX = 960 / image.width;
+    let scaleY = 600 / image.height;
+    let scale = Math.max(scaleX, scaleY);
+    image.setScale(scale).setScrollFactor(0);
+
     this.drawPlatform();
     this.availablePlatformPositions = platformXPositions;
 
