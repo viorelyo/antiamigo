@@ -32,6 +32,8 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 
 ## TODO in Depth
 
+- [ ] Stop filling players when limit == 4 achieved.
+- [ ] Solve crashes that appear sometimes when someone is leaving lobby
 - [x] Handle already Started Game - don't allow other players to connect
 - [ ] Do not destroy "dissapear" sprite each time (just on endgame)
 - [ ] Handle Death ? (Do not detroy player, just kill)

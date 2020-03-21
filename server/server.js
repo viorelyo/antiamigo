@@ -110,7 +110,7 @@ function playerLeft(socketID) {
   }
   delete players[socketID];
 
-  if (runningGame.activePlayers.length === 0) {
+  if (runningGame.gameIsRunning && runningGame.activePlayers.length === 0) {
     restartGame();
     io.emit("gameIsAvailable", {
       players: players,
@@ -139,8 +139,8 @@ function restartGame() {
   runningGame.availableSprites = sprites;
 
   // assign availableSprite && position to waiting players
-  for (const [player, value] of Object.entries(players)) {
-    assignDataToPlayer(player);
+  for (const [playerID, value] of Object.entries(players)) {
+    assignDataToPlayer(playerID);
     console.log("New gamer: ", value);
   }
 }

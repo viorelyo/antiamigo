@@ -14,14 +14,14 @@ var Menu = new Phaser.Class({
     this.availablePlatformPositions = platformXPositions;
 
     let socket = io();
+    var self = this;
     this.allPlayers = {};
+    this.playersData = {};
     let gameIsRunning;
 
     this.input.keyboard.on("keydown_SPACE", function(event) {
       if (!gameIsRunning) {
         socket.emit("startGame");
-      } else {
-        console.log("Sorry, game is running");
       }
     });
 
@@ -31,6 +31,8 @@ var Menu = new Phaser.Class({
       this.playerID = socket.id;
       if (!gameIsRunning) {
         this.showPlayers();
+      } else {
+        this.showGameRunning();
       }
     });
 
@@ -50,13 +52,9 @@ var Menu = new Phaser.Class({
       this.scene.start("game", { socket: socket, players: this.allPlayers });
     });
 
-    // socket.on("disconnect", function(playerID) {
-    //   for (var player in this.allPlayers) {
-    //     if (playerID === this.allPlayers[player].playerID) {
-    //       delete this.allPlayers[player];
-    //     }
-    //   }
-    // });
+    socket.on("disconnect", function(playerID) {
+      self.playerExit(playerID);
+    });
   },
 
   drawPlatform: function() {
@@ -78,11 +76,35 @@ var Menu = new Phaser.Class({
     if (player.playerID === this.playerID) {
       playerName.setColor("#e6ed00");
     }
+
+    this.playersData[player.playerID] = {
+      playerSprite: p,
+      playerName: playerName
+    };
+    console.log(this.playersData);
   },
 
   showPlayers: function() {
     for (var player in this.allPlayers) {
       this.drawPlayerInfo(this.allPlayers[player]);
+    }
+  },
+
+  showGameRunning: function() {
+    console.log("game running");
+  },
+
+  playerExit: function(playerID) {
+    for (var id in this.playersData) {
+      if (playerID === id) {
+        this.playersData[id].playerSprite.destroy();
+        this.playersData[id].playerName.destroy();
+
+        delete this.allPlayers[id];
+        this.availablePlatformPositions.push(
+          this.playersData[id].playerSprite.x
+        );
+      }
     }
   }
 });
