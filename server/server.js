@@ -31,7 +31,7 @@ app.get("*", function(req, res) {
 io.on("connection", socket => {
   playerJoined(socket);
 
-  if (runningGame.gameIsRunning || Object.keys(players).length >= 4) {
+  if (runningGame.gameIsRunning || Object.keys(players).length > 4) {
     socket.emit("currentPlayers", {
       players: {},
       gameIsRunning: runningGame.gameIsRunning
