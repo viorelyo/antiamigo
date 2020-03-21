@@ -15,10 +15,12 @@ const startPositions = [
 
 var runningGame = {
   gameIsRunning: false,
-  activePlayers: [],
-  positions: startPositions,
-  availableSprites: sprites
+  activePlayers: {},
+  positions: [],
+  availableSprites: []
 };
+Object.assign(runningGame.positions, startPositions);
+Object.assign(runningGame.availableSprites, sprites);
 
 const clientFolder = "client";
 
@@ -68,6 +70,7 @@ io.on("connection", socket => {
   socket.on("disconnect", () => {
     playerLeft(socket.id);
     console.log("Player disconnected: " + socket.id);
+    console.log();
     io.emit("disconnect", socket.id);
   });
 });
@@ -89,7 +92,7 @@ function playerJoined(socket) {
 function runGame() {
   playerCount = 0;
   for (const [key, value] of Object.entries(players)) {
-    runningGame.activePlayers.push(key);
+    runningGame.activePlayers[key] = value;
     playerCount++;
     delete players[key];
     if (playerCount === 4) {
@@ -102,24 +105,24 @@ function runGame() {
 }
 
 function playerLeft(socketID) {
-  runningGame.availableSprites.push(players[socketID].spriteKey);
-  runningGame.positions.push({
-    x: players[socketID].x,
-    y: players[socketID].y
-  });
-
-  const index = runningGame.activePlayers.indexOf(players[socketID].playerID);
-  if (index > -1) {
-    runningGame.activePlayers.splice(index, 1);
-  }
-  delete players[socketID];
-
-  if (runningGame.gameIsRunning && runningGame.activePlayers.length === 0) {
-    restartGame();
-    io.emit("gameIsAvailable", {
-      players: players,
-      gameIsRunning: runningGame.gameIsRunning
+  if (!runningGame.gameIsRunning) {
+    runningGame.availableSprites.push(players[socketID].spriteKey);
+    runningGame.positions.push({
+      x: players[socketID].x,
+      y: players[socketID].y
     });
+
+    delete players[socketID];
+  } else {
+    delete runningGame.activePlayers[socketID];
+
+    if (Object.keys(runningGame.activePlayers).length === 0) {
+      restartGame();
+      io.emit("gameIsAvailable", {
+        players: players,
+        gameIsRunning: runningGame.gameIsRunning
+      });
+    }
   }
 }
 
@@ -138,13 +141,12 @@ function assignDataToPlayer(playerID) {
 
 function restartGame() {
   runningGame.gameIsRunning = false;
-  runningGame.activePlayers = [];
-  runningGame.positions = startPositions;
-  runningGame.availableSprites = sprites;
+  runningGame.activePlayers = {};
+  Object.assign(runningGame.positions, startPositions);
+  Object.assign(runningGame.availableSprites, sprites);
 
   // assign availableSprite && position to waiting players
   for (const [playerID, value] of Object.entries(players)) {
     assignDataToPlayer(playerID);
-    console.log("New gamer: ", value);
   }
 }
