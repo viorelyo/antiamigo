@@ -53,11 +53,14 @@ io.on("connection", socket => {
   });
 
   socket.on("playerMovement", movementData => {
-    if (players[socket.id]) {
-      players[socket.id].x = movementData.x;
-      players[socket.id].y = movementData.y;
-      players[socket.id].direction = movementData.direction;
-      socket.broadcast.emit("playerMoved", players[socket.id]);
+    if (runningGame.activePlayers[socket.id]) {
+      runningGame.activePlayers[socket.id].x = movementData.x;
+      runningGame.activePlayers[socket.id].y = movementData.y;
+      runningGame.activePlayers[socket.id].direction = movementData.direction;
+      socket.broadcast.emit(
+        "playerMoved",
+        runningGame.activePlayers[socket.id]
+      );
     }
   });
 
