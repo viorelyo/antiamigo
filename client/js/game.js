@@ -15,11 +15,11 @@ var Game = new Phaser.Class({
     var self = this;
 
     this.add.image(480, 300, "sky");
-    this.platforms = this.physics.add.staticGroup();
-    this.platforms.create(400, 568, "ground");
-    this.platforms.create(600, 400, "ground");
-    this.platforms.create(50, 250, "ground");
-    this.platforms.create(750, 220, "ground");
+
+    const map = this.make.tilemap({ key: 'map' });
+    const tileset = map.addTilesetImage('terrain', 'terrain')
+    this.platforms = map.createStaticLayer('TilemapLayer', tileset, 0, 0);
+    this.platforms.setCollisionByExclusion(-1, true);
 
     cursors = this.input.keyboard.createCursorKeys();
 
@@ -145,7 +145,6 @@ var Game = new Phaser.Class({
     );
     this.player.setBounce(0);
     this.player.body.setGravityY(500);
-    // this.player.setCollideWorldBounds(true);
     this.physics.add.collider(
       this.player,
       this.platforms,
@@ -177,7 +176,6 @@ var Game = new Phaser.Class({
     otherPlayer.playerID = playerInfo.playerID;
     otherPlayer.setBounce(0);
     otherPlayer.body.setGravityY(500);
-    // otherPlayer.setCollideWorldBounds(true);
     this.physics.add.collider(otherPlayer, this.platforms);
 
     this.otherPlayers.add(otherPlayer);
@@ -195,7 +193,8 @@ var Game = new Phaser.Class({
   },
 
   handlePlatformCollision: function(player, platform) {
-    if (player.body.touching.down) {
+    console.log("handle collision")
+    if (player.body.blocked.down) {
       player.jumpCount = 0;
     }
   },
@@ -217,7 +216,7 @@ var Game = new Phaser.Class({
     if (this.player.jumpCount == 0) {
       this.firstJump();
     }
-    if (this.player.jumpCount == 1 && !this.player.body.touching.down) {
+    if (this.player.jumpCount == 1 && !this.player.body.blocked.down) {
       this.secondJump();
     }
   },

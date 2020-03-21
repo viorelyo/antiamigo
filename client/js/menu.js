@@ -59,7 +59,7 @@ var Menu = new Phaser.Class({
 
   drawPlatform: function() {
     this.platform = this.physics.add.staticGroup();
-    this.platform.create(450, 200, "ground");
+    this.platform.create(450, 200, "brick-48");
   },
 
   drawPlayerInfo: function(player) {

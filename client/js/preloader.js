@@ -10,12 +10,12 @@ var Preloader = new Phaser.Class({
           {
             type: "image",
             key: "loadingbar_bg",
-            url: "assets/loadingbar_bg.png"
+            url: "assets/loadingbar/loadingbar_bg.png"
           },
           {
             type: "image",
             key: "loadingbar_fill",
-            url: "assets/loadingbar_fill.png"
+            url: "assets/loadingbar/loadingbar_fill.png"
           }
         ]
       }
@@ -56,10 +56,11 @@ var Preloader = new Phaser.Class({
     this.loadingbar_fill = this.add.sprite(480, 300, "loadingbar_fill");
     this.setPreloadSprite(this.loadingbar_fill);
 
-    this.load.image("sky", "../assets/sky.png");
-    this.load.image("ground", "../assets/platform.png");
+    this.load.image("sky", "../assets/environment/sky.png");
+    this.load.image("terrain", "../assets/tilemaps/terrain.png");
+    this.load.tilemapTiledJSON('map', 'assets/tilemaps/map.json');
 
-    this.load.spritesheet("disappearing", "../assets/disappearing.png", {
+    this.load.spritesheet("disappearing", "../assets/anims/disappearing.png", {
       frameWidth: 96,
       frameHeight: 96
     });
@@ -67,28 +68,28 @@ var Preloader = new Phaser.Class({
     sprites.forEach(sprite => {
       self.load.spritesheet(
         sprite + "-idle-left",
-        "../assets/" + sprite + "-idle-left.png",
+        "../assets/players/" + sprite + "-idle-left.png",
         { frameWidth: 32, frameHeight: 32 }
       );
       self.load.spritesheet(
         sprite + "-idle-right",
-        "../assets/" + sprite + "-idle-right.png",
+        "../assets/players/" + sprite + "-idle-right.png",
         { frameWidth: 32, frameHeight: 32 }
       );
       self.load.spritesheet(
         sprite + "-right",
-        "../assets/" + sprite + "-right.png",
+        "../assets/players/" + sprite + "-right.png",
         { frameWidth: 32, frameHeight: 32 }
       );
       self.load.spritesheet(
         sprite + "-left",
-        "../assets/" + sprite + "-left.png",
+        "../assets/players/" + sprite + "-left.png",
         { frameWidth: 32, frameHeight: 32 }
       );
 
       self.load.spritesheet(
         sprite + "-double-jump",
-        "../assets/" + sprite + "-double-jump.png",
+        "../assets/players/" + sprite + "-double-jump.png",
         { frameWidth: 32, frameHeight: 32 }
       );
     });
