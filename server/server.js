@@ -30,12 +30,14 @@ app.get("*", function(req, res) {
 
 io.on("connection", socket => {
   playerJoined(socket);
-  if (runningGame.gameIsRunning) {
+
+  if (runningGame.gameIsRunning || Object.keys(players).length >= 4) {
     socket.emit("currentPlayers", {
       players: {},
       gameIsRunning: runningGame.gameIsRunning
     });
   } else {
+    assignDataToPlayer(socket.id);
     socket.emit("currentPlayers", {
       players: players,
       gameIsRunning: runningGame.gameIsRunning
@@ -80,17 +82,19 @@ function playerJoined(socket) {
     direction: "idle-right"
   };
 
-  if (!runningGame.gameIsRunning) {
-    assignDataToPlayer(socket.id);
-  }
-
-  console.log("Active: ", players);
+  // console.log("Active: ", players);
   console.log("Player joined lobby: " + socket.id);
 }
 
 function runGame() {
+  playerCount = 0;
   for (const [key, value] of Object.entries(players)) {
     runningGame.activePlayers.push(key);
+    playerCount++;
+    delete players[key];
+    if (playerCount === 4) {
+      break; //Game limit achieved
+    }
   }
 
   runningGame.gameIsRunning = true;

@@ -62,3 +62,9 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 - https://www.dynetisgames.com/2018/02/01/deploy-multiplayer-phaser-game-heroku/ (**Heroku**)
 - https://phaser.discourse.group/t/phaser-3-real-time-multiplayer-game-with-physics/1739 (**Multiple Scenes handled**)
 - https://yocton.ru/phaser3/sozdanie-mnogopolzovatelskoi-igry-v-phaser-3-s-socket-io-chast-2 (**Multiplayer Approach**)
+
+## Stable Versions
+
+- 1.0.0 - _Single Player mode_
+- 2.0.0 - _Multiplayer mode_
+- 3.0.0 - _Waiting room for other players_
