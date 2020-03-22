@@ -1,3 +1,5 @@
+const avatarPositions = [560, 410, 260];
+
 var Game = new Phaser.Class({
   Extends: Phaser.Scene,
   initialize: function Game() {
@@ -20,9 +22,9 @@ var Game = new Phaser.Class({
     let scale = Math.max(scaleX, scaleY);
     image.setScale(scale).setScrollFactor(0);
 
-    const map = this.make.tilemap({ key: 'map' });
-    const tileset = map.addTilesetImage('terrain', 'terrain')
-    this.platforms = map.createStaticLayer('TilemapLayer', tileset, 0, 0);
+    const map = this.make.tilemap({ key: "map" });
+    const tileset = map.addTilesetImage("terrain", "terrain");
+    this.platforms = map.createStaticLayer("TilemapLayer", tileset, 0, 0);
     this.platforms.setCollisionByExclusion(-1, true);
 
     cursors = this.input.keyboard.createCursorKeys();
@@ -36,6 +38,8 @@ var Game = new Phaser.Class({
         self.addOtherPlayers(self.players[id]);
       }
     });
+
+    this.drawScoreboard();
 
     this.socket.on("playerMoved", playerInfo => {
       self.otherPlayers.getChildren().forEach(otherPlayer => {
@@ -197,7 +201,7 @@ var Game = new Phaser.Class({
   },
 
   handlePlatformCollision: function(player, platform) {
-    console.log("handle collision")
+    console.log("handle collision");
     if (player.body.blocked.down) {
       player.jumpCount = 0;
     }
@@ -236,5 +240,51 @@ var Game = new Phaser.Class({
     this.player.direction = "double-jump";
     this.player.setVelocityY(-500);
     this.player.anims.play(this.player.spriteKey + "-double-jump", true);
+  },
+
+  drawScoreboard: function() {
+    var scoresPositions = avatarPositions;
+    var graphics = this.add.graphics({
+      lineStyle: { width: 1, color: 0xebb09b },
+      fillStyle: { color: 0x1f233e }
+    });
+
+    var rect = new Phaser.Geom.Rectangle(960, 0, 120, 600);
+    graphics.fillRectShape(rect);
+
+    var line1 = new Phaser.Geom.Line(960, 150, 1080, 150);
+    var line2 = new Phaser.Geom.Line(960, 300, 1080, 300);
+    var line3 = new Phaser.Geom.Line(960, 450, 1080, 450);
+
+    graphics.strokeLineShape(line1);
+    graphics.strokeLineShape(line2);
+    graphics.strokeLineShape(line3);
+
+    this.add.text(1000, 10, this.player.spriteKey, {
+      fontSize: 20,
+      color: "#e6ed00"
+    });
+    this.add.text(1010, 50, "9", {
+      fontSize: 30,
+      fontFamily: "Consolas"
+    });
+    this.add.image(1020, 110, this.player.spriteKey + "-avatar").setScale(0.8);
+
+    for (var id in this.players) {
+      if (id != this.player.playerID) {
+        y = scoresPositions.pop();
+
+        this.add.text(1000, y - 100, this.players[id].spriteKey, {
+          fontSize: 20
+        });
+        this.add.text(1010, y - 60, "9", {
+          fontSize: 30,
+          fontFamily: "Consolas"
+        });
+        this.add
+          .image(1020, y, this.players[id].spriteKey + "-avatar")
+          .setScale(0.8);
+      }
+    }
   }
 });

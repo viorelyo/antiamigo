@@ -68,6 +68,11 @@ var Preloader = new Phaser.Class({
     });
 
     sprites.forEach(sprite => {
+      self.load.image(
+        sprite + "-avatar",
+        "../assets/avatars/" + sprite + ".png"
+      );
+
       self.load.spritesheet(
         sprite + "-idle-left",
         "../assets/players/" + sprite + "-idle-left.png",
