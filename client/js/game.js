@@ -88,6 +88,11 @@ var Game = new Phaser.Class({
         this.player.direction = "left";
       } else if (cursors.right.isDown) {
         this.player.setVelocityX(200);
+
+        // if (this.player.body.touching.right) {
+        //   this.player.setVelocityY(50)
+        // }
+
         if (this.player.body.velocity.y >= 0) {
           this.player.anims.play(this.player.spriteKey + "-right", true);
         }
