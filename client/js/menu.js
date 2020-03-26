@@ -88,7 +88,6 @@ var Menu = new Phaser.Class({
       playerSprite: p,
       playerName: playerName
     };
-    console.log(this.playersData);
   },
 
   showPlayers: function() {

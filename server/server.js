@@ -66,7 +66,7 @@ io.on("connection", socket => {
 
   socket.on("playerKilled", data => {
     console.log("Player killed: " + data.victimID + " by: " + data.killerID);
-    // playerLeft(data.victimID);
+    runningGame.activePlayers[data.killerID].score += 1;
     io.emit("playerDied", data);
   });
 
@@ -109,6 +109,7 @@ function runGame() {
 
 function playerLeft(socketID) {
   if (!runningGame.gameIsRunning) {
+    //TODO maybe should remove this part
     runningGame.availableSprites.push(players[socketID].spriteKey);
     runningGame.positions.push({
       x: players[socketID].x,
@@ -137,6 +138,8 @@ function assignDataToPlayer(playerID) {
   players[playerID].x = runningGame.positions[randomInt].x;
   players[playerID].y = runningGame.positions[randomInt].y;
   players[playerID].spriteKey = runningGame.availableSprites[randomInt];
+  players[playerID].score = 0;
+  players[playerID].arrows = 3;
 
   runningGame.positions.splice(randomInt, 1);
   runningGame.availableSprites.splice(randomInt, 1);

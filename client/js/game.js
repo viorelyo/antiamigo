@@ -67,6 +67,9 @@ var Game = new Phaser.Class({
       } else if (self.player.playerID === data.victimID) {
         self.destroyPlayer(self.player);
       }
+
+      self.players[data.killerID].score += 1;
+      self.refreshScoreBoard();
     });
 
     this.socket.on("disconnect", function(playerID) {
@@ -172,6 +175,8 @@ var Game = new Phaser.Class({
     this.player.alive = true;
     this.player.direction = playerInfo.direction;
     this.player.spriteKey = playerInfo.spriteKey;
+    this.player.score = playerInfo.score;
+    this.player.arrows = playerInfo.arrows;
     this.player.jumpCount = 0;
   },
 
@@ -201,7 +206,6 @@ var Game = new Phaser.Class({
   },
 
   handlePlatformCollision: function(player, platform) {
-    console.log("handle collision");
     if (player.body.blocked.down) {
       player.jumpCount = 0;
     }
@@ -243,7 +247,6 @@ var Game = new Phaser.Class({
   },
 
   drawScoreboard: function() {
-    var scoresPositions = avatarPositions;
     var graphics = this.add.graphics({
       lineStyle: { width: 1, color: 0xebb09b },
       fillStyle: { color: 0x1f233e }
@@ -251,40 +254,83 @@ var Game = new Phaser.Class({
 
     var rect = new Phaser.Geom.Rectangle(960, 0, 120, 600);
     graphics.fillRectShape(rect);
-
     var line1 = new Phaser.Geom.Line(960, 150, 1080, 150);
     var line2 = new Phaser.Geom.Line(960, 300, 1080, 300);
     var line3 = new Phaser.Geom.Line(960, 450, 1080, 450);
-
     graphics.strokeLineShape(line1);
     graphics.strokeLineShape(line2);
     graphics.strokeLineShape(line3);
 
-    this.add.text(1000, 10, this.player.spriteKey, {
+    //Draw avatars and their score labels
+    var scoresPositions = avatarPositions;
+
+    this.scoreBoard = {};
+
+    var arrows = this.add.text(970, 10, this.showArrows(this.player.arrows), {
+      fontSize: 20
+    });
+    this.add.text(1020, 10, this.player.spriteKey, {
       fontSize: 20,
       color: "#e6ed00"
     });
-    this.add.text(1010, 50, "9", {
+    var score = this.add.text(1010, 50, this.player.score, {
       fontSize: 30,
       fontFamily: "Consolas"
     });
     this.add.image(1020, 110, this.player.spriteKey + "-avatar").setScale(0.8);
 
+    this.scoreBoard[this.player.playerID] = {
+      scoreLabel: score,
+      arrowsLabel: arrows
+    };
+
     for (var id in this.players) {
       if (id != this.player.playerID) {
         y = scoresPositions.pop();
 
-        this.add.text(1000, y - 100, this.players[id].spriteKey, {
+        var arrows = this.add.text(
+          970,
+          y - 100,
+          this.showArrows(this.players[id].arrows),
+          {
+            fontSize: 20
+          }
+        );
+        this.add.text(1020, y - 100, this.players[id].spriteKey, {
           fontSize: 20
         });
-        this.add.text(1010, y - 60, "9", {
+        var score = this.add.text(1010, y - 60, this.players[id].score, {
           fontSize: 30,
           fontFamily: "Consolas"
         });
         this.add
           .image(1020, y, this.players[id].spriteKey + "-avatar")
           .setScale(0.8);
+
+        this.scoreBoard[id] = {
+          scoreLabel: score,
+          arrowsLabel: arrows
+        };
       }
     }
+  },
+
+  refreshScoreBoard: function() {
+    for (var id in this.players) {
+      this.scoreBoard[id].scoreLabel.setText(this.players[id].score);
+
+      this.scoreBoard[id].arrowsLabel.setText(
+        this.showArrows(this.players[id].arrows)
+      );
+    }
+  },
+
+  showArrows: function(arrows) {
+    showArrows = "";
+    for (var i = 0; i < arrows; i++) {
+      showArrows += "|";
+    }
+
+    return showArrows;
   }
 });
