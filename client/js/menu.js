@@ -1,4 +1,4 @@
-const platformXPositions = [600, 500, 400, 300];
+const platformXPositions = [684, 588, 492, 396];
 
 var Menu = new Phaser.Class({
   Extends: Phaser.Scene,
@@ -9,8 +9,8 @@ var Menu = new Phaser.Class({
   preload: function() {},
 
   create: function() {
-    let image = this.add.image(480, 300, "sky");
-    let scaleX = 960 / image.width;
+    let image = this.add.image(480, 300, "sky-menu");
+    let scaleX = 1200 / image.width;
     let scaleY = 600 / image.height;
     let scale = Math.max(scaleX, scaleY);
     image.setScale(scale).setScrollFactor(0);
@@ -39,6 +39,7 @@ var Menu = new Phaser.Class({
       } else {
         this.showGameRunning();
       }
+      this.showMessage(gameIsRunning);
     });
 
     socket.on("gameIsAvailable", data => {
@@ -65,7 +66,7 @@ var Menu = new Phaser.Class({
   drawPlatform: function() {
     this.platform = this.physics.add.staticGroup();
     for (var i = 0; i < 9; i++) {
-      this.platform.create(264 + i * 48, 200, "ground-half");
+      this.platform.create(348 + i * 48, 200, "ground-half");
     }
   },
 
@@ -98,6 +99,20 @@ var Menu = new Phaser.Class({
 
   showGameRunning: function() {
     console.log("game running");
+    console.log("game running");
+  },
+
+  showMessage(gameIsRunning) {
+    const messageStr = gameIsRunning ? "The game is already running" : "Press SPACE to start game";
+    var style = {
+      font: "26px Consolas",
+      fill: "#e6ed00",
+      wordWrap: true,
+      align: "center"
+    };
+    var message = this.add.text(540, 450, messageStr, style);
+    console.log(message.getDisplayWidth);
+    message.setOrigin(0.5);
   },
 
   playerExit: function(playerID) {

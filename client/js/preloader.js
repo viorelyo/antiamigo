@@ -57,6 +57,7 @@ var Preloader = new Phaser.Class({
     this.setPreloadSprite(this.loadingbar_fill);
 
     this.load.image("sky", "../assets/background/mountains-moon.jpg");
+    this.load.image("sky-menu", "../assets/background/mountains-moon-menu.jpg");
     this.load.image("ground-half", "../assets/tilemaps/ground-half.png");
 
     this.load.image("terrain", "../assets/tilemaps/terrain.png");
