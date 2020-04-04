@@ -21,13 +21,14 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 - [x] Kill-by-Jump-On-Head Feature
 - [x] Remove world bounds
 - [x] Lobby
-- [ ] Score Board
-- [ ] Find game map + Create
+- [x] Score Board
+- [x] Find game map + Create
 - [ ] Design: Center canvas + set the copyrights
 - [ ] Kill-by-Arrow Feature
 - [ ] Find sprites for arrow
 - [ ] Add sounds
 - [ ] Add more Bonuses: Wings, Bonus Arrow, Speedies... TBA
+- [ ] Add climb the wall with animation
 - [x] Split in modules
 
 ## TODO in Depth
@@ -37,10 +38,10 @@ Multiplayer browser game based on idea of Towerfall Ascension, implemented using
 - [x] Solve crashes that appear sometimes when someone is leaving lobby
 - [x] Handle already Started Game - don't allow other players to connect
 - [ ] Do not destroy "dissapear" sprite each time (just on endgame)
-- [ ] Handle Death ? (Do not detroy player, just kill)
-- [ ] Add text on main screen + mock img + show joined players + setPlayerName
+- [ ] Handle Death ? (Do not destroy player, just kill)
+- [x] Add text on main screen + mock img + show joined players + setPlayerName
 - [ ] What the fuck is : `.setScale(2).refreshBody();` applied on bottom platform?
-- [ ] Add Scoring Board (lateral / top)
+- [x] Add Scoring Board (lateral / top)
 - [x] Fix right/left move when player is jumping
 - [x] Add loading bar in Preloader
 - [x] Add animation on kill
