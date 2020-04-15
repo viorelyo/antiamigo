@@ -92,10 +92,6 @@ var Game = new Phaser.Class({
       } else if (cursors.right.isDown) {
         this.player.setVelocityX(200);
 
-        // if (this.player.body.touching.right) {
-        //   this.player.setVelocityY(50)
-        // }
-
         if (this.player.body.velocity.y >= 0) {
           this.player.anims.play(this.player.spriteKey + "-right", true);
         }
@@ -219,7 +215,6 @@ var Game = new Phaser.Class({
   destroyPlayer: function(player) {
     player.alive = false;
     player.destroy();
-    // this.player.setActive(false).setVisible(false);
 
     killBoom = this.physics.add.sprite(player.x, player.y, "disappearing");
     killBoom.body.setAllowGravity(false);

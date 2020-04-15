@@ -166,7 +166,7 @@ var Preloader = new Phaser.Class({
       });
     });
 
-    // dispose loade bar images
+    // dispose loaded bar images
     this.loadingbar_bg.destroy();
     this.loadingbar_fill.destroy();
     this.preloadSprite = null;

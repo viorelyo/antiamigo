@@ -88,7 +88,6 @@ function playerJoined(socket) {
     direction: "idle-right"
   };
 
-  // console.log("Active: ", players);
   console.log("Player joined lobby: " + socket.id);
 }
 
@@ -109,7 +108,6 @@ function runGame() {
 
 function playerLeft(socketID) {
   if (!runningGame.gameIsRunning) {
-    //TODO maybe should remove this part
     runningGame.availableSprites.push(players[socketID].spriteKey);
     runningGame.positions.push({
       x: players[socketID].x,
