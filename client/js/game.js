@@ -6,14 +6,14 @@ var Game = new Phaser.Class({
     Phaser.Scene.call(this, { key: "game" });
   },
 
-  init: function(data) {
+  init: function (data) {
     this.socket = data.socket;
     this.players = data.players;
   },
 
-  preload: function() {},
+  preload: function () {},
 
-  create: function() {
+  create: function () {
     var self = this;
 
     let image = this.add.image(480, 300, "sky");
@@ -31,7 +31,7 @@ var Game = new Phaser.Class({
 
     this.otherPlayers = this.physics.add.group();
 
-    Object.keys(this.players).forEach(function(id) {
+    Object.keys(this.players).forEach(function (id) {
       if (self.players[id].playerID === self.socket.id) {
         self.addPlayer(self.players[id]);
       } else {
@@ -41,8 +41,8 @@ var Game = new Phaser.Class({
 
     this.drawScoreboard();
 
-    this.socket.on("playerMoved", playerInfo => {
-      self.otherPlayers.getChildren().forEach(otherPlayer => {
+    this.socket.on("playerMoved", (playerInfo) => {
+      self.otherPlayers.getChildren().forEach((otherPlayer) => {
         if (playerInfo.playerID === otherPlayer.playerID) {
           otherPlayer.setPosition(playerInfo.x, playerInfo.y);
           otherPlayer.anims.play(
@@ -53,10 +53,10 @@ var Game = new Phaser.Class({
       });
     });
 
-    this.socket.on("playerDied", data => {
-      self.otherPlayers.getChildren().forEach(function(otherPlayer) {
+    this.socket.on("playerDied", (data) => {
+      self.otherPlayers.getChildren().forEach(function (otherPlayer) {
         if (data.victimID === otherPlayer.playerID) {
-          self.destroyPlayer(otherPlayer);
+          self.playerKilled(otherPlayer);
         }
         if (data.killerID === otherPlayer.playerID) {
           otherPlayer.setVelocityY(-400);
@@ -65,15 +65,15 @@ var Game = new Phaser.Class({
       if (self.player.playerID === data.killerID) {
         self.player.setVelocityY(-400);
       } else if (self.player.playerID === data.victimID) {
-        self.destroyPlayer(self.player);
+        self.playerKilled(self.player);
       }
 
       self.players[data.killerID].score += 1;
       self.refreshScoreBoard();
     });
 
-    this.socket.on("disconnect", function(playerID) {
-      self.otherPlayers.getChildren().forEach(function(otherPlayer) {
+    this.socket.on("disconnect", function (playerID) {
+      self.otherPlayers.getChildren().forEach(function (otherPlayer) {
         if (playerID === otherPlayer.playerID) {
           self.destroyPlayer(otherPlayer);
         }
@@ -81,7 +81,7 @@ var Game = new Phaser.Class({
     });
   },
 
-  update: function() {
+  update: function () {
     if (this.player && this.player.alive) {
       if (cursors.left.isDown) {
         this.player.setVelocityX(-200);
@@ -138,18 +138,18 @@ var Game = new Phaser.Class({
         this.socket.emit("playerMovement", {
           x: this.player.x,
           y: this.player.y,
-          direction: this.player.direction
+          direction: this.player.direction,
         });
       }
 
       this.player.oldPosition = {
         x: this.player.x,
-        y: this.player.y
+        y: this.player.y,
       };
     }
   },
 
-  addPlayer: function(playerInfo) {
+  addPlayer: function (playerInfo) {
     this.player = this.physics.add.sprite(
       playerInfo.x,
       playerInfo.y,
@@ -181,7 +181,7 @@ var Game = new Phaser.Class({
     this.player.jumpCount = 0;
   },
 
-  addOtherPlayers: function(playerInfo) {
+  addOtherPlayers: function (playerInfo) {
     const otherPlayer = this.physics.add.sprite(
       playerInfo.x,
       playerInfo.y,
@@ -195,24 +195,59 @@ var Game = new Phaser.Class({
     this.otherPlayers.add(otherPlayer);
   },
 
-  handlePlayersOverlap: function(player, otherPlayer) {
+  handlePlayersOverlap: function (player, otherPlayer) {
     if (player.body.touching.right || player.body.touching.left) {
       //pass
     } else if (player.body.touching.down && otherPlayer.body.touching.up) {
       this.socket.emit("playerKilled", {
         killerID: player.playerID,
-        victimID: otherPlayer.playerID
+        victimID: otherPlayer.playerID,
       });
     }
   },
 
-  handlePlatformCollision: function(player, platform) {
+  handlePlatformCollision: function (player, platform) {
     if (player.body.blocked.down) {
       player.jumpCount = 0;
     }
   },
 
-  destroyPlayer: function(player) {
+  playerKilled: function (player) {
+    snapshot = {
+      playerID: player.playerID,
+      direction: "idle-right",
+      x: player.x - 200,
+      y: player.y - 200,
+      spriteKey: player.spriteKey,
+      score: 0,
+      arrows: 3,
+    };
+
+    player.alive = false;
+    player.destroy();
+
+    killBoom = this.physics.add.sprite(player.x, player.y, "disappearing");
+    killBoom.body.setAllowGravity(false);
+    killBoom.once("animationcomplete", () => {
+      console.log("Animation completed");
+      killBoom.destroy();
+      var timer = this.time.delayedCall(
+        3000,
+        () => {
+          if (this.player.playerID === snapshot.playerID) {
+            this.addPlayer(snapshot);
+          } else {
+            this.addOtherPlayers(snapshot);
+          }
+        },
+        null,
+        this
+      );
+    });
+    killBoom.play("death");
+  },
+
+  destroyPlayer: function (player) {
     player.alive = false;
     player.destroy();
 
@@ -224,7 +259,7 @@ var Game = new Phaser.Class({
     killBoom.play("death");
   },
 
-  playerJump: function() {
+  playerJump: function () {
     if (this.player.jumpCount == 0) {
       this.firstJump();
     }
@@ -233,12 +268,12 @@ var Game = new Phaser.Class({
     }
   },
 
-  firstJump: function() {
+  firstJump: function () {
     this.player.jumpCount++;
     this.player.setVelocityY(-500);
   },
 
-  secondJump: function() {
+  secondJump: function () {
     this.player.jumpCount++;
     this.player.directionBeforeJump = this.player.direction;
     this.player.direction = "double-jump";
@@ -246,10 +281,10 @@ var Game = new Phaser.Class({
     this.player.anims.play(this.player.spriteKey + "-double-jump", true);
   },
 
-  drawScoreboard: function() {
+  drawScoreboard: function () {
     var graphics = this.add.graphics({
       lineStyle: { width: 1, color: 0xebb09b },
-      fillStyle: { color: 0x1f233e }
+      fillStyle: { color: 0x1f233e },
     });
 
     var rect = new Phaser.Geom.Rectangle(960, 0, 120, 600);
@@ -267,21 +302,21 @@ var Game = new Phaser.Class({
     this.scoreBoard = {};
 
     var arrows = this.add.text(970, 10, this.showArrows(this.player.arrows), {
-      fontSize: 20
+      fontSize: 20,
     });
     this.add.text(1020, 10, this.player.spriteKey, {
       fontSize: 20,
-      color: "#e6ed00"
+      color: "#e6ed00",
     });
     var score = this.add.text(1010, 50, this.player.score, {
       fontSize: 30,
-      fontFamily: "Consolas"
+      fontFamily: "Consolas",
     });
     this.add.image(1020, 110, this.player.spriteKey + "-avatar").setScale(0.8);
 
     this.scoreBoard[this.player.playerID] = {
       scoreLabel: score,
-      arrowsLabel: arrows
+      arrowsLabel: arrows,
     };
 
     for (var id in this.players) {
@@ -293,15 +328,15 @@ var Game = new Phaser.Class({
           y - 100,
           this.showArrows(this.players[id].arrows),
           {
-            fontSize: 20
+            fontSize: 20,
           }
         );
         this.add.text(1020, y - 100, this.players[id].spriteKey, {
-          fontSize: 20
+          fontSize: 20,
         });
         var score = this.add.text(1010, y - 60, this.players[id].score, {
           fontSize: 30,
-          fontFamily: "Consolas"
+          fontFamily: "Consolas",
         });
         this.add
           .image(1020, y, this.players[id].spriteKey + "-avatar")
@@ -309,13 +344,13 @@ var Game = new Phaser.Class({
 
         this.scoreBoard[id] = {
           scoreLabel: score,
-          arrowsLabel: arrows
+          arrowsLabel: arrows,
         };
       }
     }
   },
 
-  refreshScoreBoard: function() {
+  refreshScoreBoard: function () {
     for (var id in this.players) {
       this.scoreBoard[id].scoreLabel.setText(this.players[id].score);
 
@@ -325,12 +360,12 @@ var Game = new Phaser.Class({
     }
   },
 
-  showArrows: function(arrows) {
+  showArrows: function (arrows) {
     showArrows = "";
     for (var i = 0; i < arrows; i++) {
       showArrows += "|";
     }
 
     return showArrows;
-  }
+  },
 });
