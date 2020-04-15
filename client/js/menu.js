@@ -47,6 +47,7 @@ var Menu = new Phaser.Class({
       this.allPlayers = data.players;
       gameIsRunning = data.gameIsRunning;
       this.showPlayers();
+      // this.showMessage(data.gameIsRunning);
     });
 
     socket.on("newPlayer", playerInfo => {
