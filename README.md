@@ -1,6 +1,8 @@
 # antiamigo
 Multiplayer browser game implemented using `Phaser 3` and `socket.io`
 
+<p align="center"><img src="/demos/logo.png" width="100"/></p>
+
 ## Features
 - Multiplayer (max 4 players)
 - Kill others by jumping on their heads
@@ -11,9 +13,9 @@ Multiplayer browser game implemented using `Phaser 3` and `socket.io`
 ## Demo
 Basic gameplay
 
-<img src="/demos/menu.gif" width="800">
+<img src="/demos/menu.gif" width="900">
 
-<img src="/demos/game.gif" width="800">
+<img src="/demos/game.gif" width="900">
 
 
 ## Prerequisites
